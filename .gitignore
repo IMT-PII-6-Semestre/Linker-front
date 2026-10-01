@@ -44,3 +44,5 @@ yarn-error.*
 .claude/
 CLAUDE.md
 .mcp.json
+.omc/
+AGENTS.md

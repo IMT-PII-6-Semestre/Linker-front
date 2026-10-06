@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { forwardRef } from 'react';
+import { forwardRef, useState } from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -11,8 +11,9 @@ import {
   type TextInputProps,
 } from 'react-native';
 
-import { AppRadius, AppSpacing } from '@/app-shell/theme/tokens';
+import { AppFonts, AppRadius, AppSpacing, AppType } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
+import type { Mask } from '@/core/format/masks';
 
 interface TextFieldProps {
   label: string;
@@ -20,22 +21,33 @@ interface TextFieldProps {
   onChangeText: (value: string) => void;
   placeholder?: string;
   errorText?: string | null;
+  /** Texto de apoio abaixo do campo (some quando há erro). */
+  helperText?: string;
   editable?: boolean;
   autoFocus?: boolean;
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   returnKeyType?: ReturnKeyTypeOptions;
   onSubmitEditing?: () => void;
+  onBlur?: () => void;
   leftIcon?: keyof typeof MaterialIcons.glyphMap;
   rightIcon?: keyof typeof MaterialIcons.glyphMap;
   onRightIconPress?: () => void;
   rightIconLabel?: string;
   textContentType?: TextInputProps['textContentType'];
   autoComplete?: TextInputProps['autoComplete'];
+  autoCapitalize?: TextInputProps['autoCapitalize'];
+  /** Formata enquanto digita (CPF, CEP, telefone...). */
+  mask?: Mask;
+  maxLength?: number;
+  /** Campo de várias linhas (descrição, experiências). */
+  multiline?: boolean;
+  /** Mantém o foco no campo ao enviar (ex.: TagInput). */
+  submitBehavior?: TextInputProps['submitBehavior'];
   testID?: string;
 }
 
-/** Campo de texto com rótulo, ícones e erro inline, estilizado pelos tokens de tema. */
+/** Campo de texto com rótulo, ícones e erro inline, no visual do protótipo. */
 export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
   {
     label,
@@ -43,82 +55,106 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
     onChangeText,
     placeholder,
     errorText,
+    helperText,
     editable = true,
     autoFocus,
     secureTextEntry,
     keyboardType,
     returnKeyType,
     onSubmitEditing,
+    onBlur,
     leftIcon,
     rightIcon,
     onRightIconPress,
     rightIconLabel,
     textContentType,
     autoComplete,
+    autoCapitalize = 'none',
+    mask,
+    maxLength,
+    multiline = false,
+    submitBehavior,
     testID,
   },
   ref,
 ) {
   const colors = useAppTheme();
+  const [focused, setFocused] = useState(false);
   const hasError = Boolean(errorText);
+
+  const borderColor = hasError ? colors.error : focused ? colors.primary : colors.outlineVariant;
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.label, { color: colors.onSurface }]}>{label}</Text>
+      <Text style={[styles.label, { color: colors.onSurfaceVariant }]}>{label}</Text>
       <View
         style={[
           styles.field,
-          {
-            backgroundColor: colors.surfaceContainerHighest + '66',
-            borderColor: hasError ? colors.error : colors.outlineVariant,
-          },
+          multiline && styles.fieldMultiline,
+          { backgroundColor: colors.surface, borderColor, opacity: editable ? 1 : 0.6 },
         ]}
       >
         {leftIcon ? (
-          <MaterialIcons name={leftIcon} size={20} color={colors.onSurfaceVariant} style={styles.icon} />
+          <MaterialIcons name={leftIcon} size={20} color={focused ? colors.primary : colors.onSurfaceVariant} />
         ) : null}
         <TextInput
           ref={ref}
           testID={testID}
+          accessibilityLabel={label}
+          accessibilityHint={hasError ? (errorText ?? undefined) : helperText}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={(text) => onChangeText(mask ? mask(text) : text)}
           placeholder={placeholder}
-          placeholderTextColor={colors.onSurfaceVariant}
+          placeholderTextColor={colors.outline}
           editable={editable}
           autoFocus={autoFocus}
           secureTextEntry={secureTextEntry}
           keyboardType={keyboardType}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
+          submitBehavior={submitBehavior}
+          onFocus={() => setFocused(true)}
+          onBlur={() => {
+            setFocused(false);
+            onBlur?.();
+          }}
           textContentType={textContentType}
           autoComplete={autoComplete}
-          autoCapitalize="none"
+          autoCapitalize={autoCapitalize}
           autoCorrect={false}
-          style={[styles.input, { color: colors.onSurface }]}
+          maxLength={maxLength}
+          multiline={multiline}
+          textAlignVertical={multiline ? 'top' : 'center'}
+          style={[styles.input, multiline && styles.inputMultiline, { color: colors.onSurface }]}
         />
         {rightIcon ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={rightIconLabel}
             onPress={onRightIconPress}
-            hitSlop={8}
+            hitSlop={12}
           >
             <MaterialIcons name={rightIcon} size={20} color={colors.onSurfaceVariant} />
           </Pressable>
         ) : null}
       </View>
-      {hasError ? <Text style={[styles.error, { color: colors.error }]}>{errorText}</Text> : null}
+      {hasError ? (
+        <Text accessibilityLiveRegion="polite" style={[styles.helper, { color: colors.error }]}>
+          {errorText}
+        </Text>
+      ) : helperText ? (
+        <Text style={[styles.helper, { color: colors.onSurfaceVariant }]}>{helperText}</Text>
+      ) : null}
     </View>
   );
 });
 
 const styles = StyleSheet.create({
   container: {
-    gap: 4,
+    gap: AppSpacing.xs,
   },
   label: {
-    fontSize: 13,
-    fontWeight: '500',
+    ...AppType.label,
   },
   field: {
     flexDirection: 'row',
@@ -126,18 +162,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: AppRadius.input,
     paddingHorizontal: AppSpacing.md,
-    minHeight: 52,
+    minHeight: 50,
     gap: AppSpacing.sm,
   },
-  icon: {
-    marginRight: 2,
+  fieldMultiline: {
+    alignItems: 'flex-start',
+    paddingVertical: AppSpacing.sm,
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    // Sem lineHeight: no iOS ele desalinha o texto dentro do TextInput.
+    fontFamily: AppFonts.regular,
+    fontSize: 15,
     paddingVertical: AppSpacing.sm,
   },
-  error: {
-    fontSize: 12,
+  inputMultiline: {
+    minHeight: 96,
+  },
+  helper: {
+    ...AppType.label,
   },
 });

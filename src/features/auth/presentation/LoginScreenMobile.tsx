@@ -1,9 +1,13 @@
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppSpacing } from '@/app-shell/theme/tokens';
+import { AppRoutes } from '@/app-shell/routes';
+import { AppSizes, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 import { AppLogo } from '@/core/ui/AppLogo';
+import { AppText } from '@/core/ui/AppText';
 
 import { LoginForm } from './LoginForm';
 
@@ -21,16 +25,31 @@ export function LoginScreenMobile() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          <View style={styles.content}>
-            <AppLogo size={72} />
+          <Animated.View entering={FadeInDown.duration(400)} style={styles.content}>
+            <AppLogo size={44} tagline="Para pessoas e empresas reais." />
             <View style={styles.headlineGroup}>
-              <Text style={[styles.headline, { color: colors.onSurface }]}>Bem-vindo de volta</Text>
-              <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
-                Entre para continuar.
-              </Text>
+              <AppText variant="title" align="center" accessibilityRole="header">
+                Bem-vindo de volta
+              </AppText>
+              <AppText color="onSurfaceVariant" align="center">
+                Entre para ver suas vagas e conversas.
+              </AppText>
             </View>
             <LoginForm />
-          </View>
+            <View style={styles.signUpRow}>
+              <AppText color="onSurfaceVariant">Ainda não tem conta? </AppText>
+              <Pressable
+                testID="login-go-signup"
+                accessibilityRole="link"
+                onPress={() => router.push(AppRoutes.cadastro)}
+                hitSlop={12}
+              >
+                <AppText variant="bodyStrong" color="primary">
+                  Cadastre-se
+                </AppText>
+              </Pressable>
+            </View>
+          </Animated.View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -47,21 +66,20 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: AppSpacing.lg,
   },
   content: {
+    width: '100%',
+    maxWidth: AppSizes.formMaxWidth,
     gap: AppSpacing.xl,
   },
   headlineGroup: {
     gap: AppSpacing.xs,
   },
-  headline: {
-    fontSize: 24,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 14,
-    textAlign: 'center',
+  signUpRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

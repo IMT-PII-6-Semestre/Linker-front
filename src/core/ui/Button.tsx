@@ -1,41 +1,84 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text, type GestureResponderEvent } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  type GestureResponderEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
-import { AppRadius, AppSizes } from '@/app-shell/theme/tokens';
+import { AppRadius, AppSizes, AppSpacing, AppType } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
+
+import { PressableScale } from './PressableScale';
+
+export type ButtonVariant = 'filled' | 'outline' | 'ghost' | 'inverse';
 
 interface ButtonProps {
   label: string;
   onPress: (event: GestureResponderEvent) => void;
+  variant?: ButtonVariant;
+  icon?: keyof typeof MaterialIcons.glyphMap;
   loading?: boolean;
   disabled?: boolean;
+  accessibilityHint?: string;
+  style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
-/** Botão preenchido padrão do app, com estado de loading. */
-export function Button({ label, onPress, loading = false, disabled = false, testID }: ButtonProps) {
+/**
+ * Botão do app. `filled` é a ação principal; `outline` a secundária;
+ * `ghost` ação de texto; `inverse` botão branco sobre fundo roxo (overlay).
+ */
+export function Button({
+  label,
+  onPress,
+  variant = 'filled',
+  icon,
+  loading = false,
+  disabled = false,
+  accessibilityHint,
+  style,
+  testID,
+}: ButtonProps) {
   const colors = useAppTheme();
   const isDisabled = disabled || loading;
 
+  const palette = {
+    filled: { bg: colors.primary, fg: colors.onPrimary, border: colors.primary },
+    outline: { bg: 'transparent', fg: colors.primary, border: colors.primary },
+    ghost: { bg: 'transparent', fg: colors.primary, border: 'transparent' },
+    inverse: { bg: colors.surface, fg: colors.primary, border: colors.surface },
+  }[variant];
+
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="button"
-      accessibilityState={{ disabled: isDisabled }}
+      accessibilityLabel={label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: isDisabled, busy: loading }}
       testID={testID}
       onPress={isDisabled ? undefined : onPress}
-      style={({ pressed }) => [
+      style={[
         styles.button,
         {
-          backgroundColor: colors.primary,
-          opacity: isDisabled ? 0.6 : pressed ? 0.85 : 1,
+          backgroundColor: palette.bg,
+          borderColor: palette.border,
+          opacity: isDisabled && !loading ? 0.5 : 1,
         },
+        style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.onPrimary} size="small" />
+        <ActivityIndicator color={palette.fg} size="small" />
       ) : (
-        <Text style={[styles.label, { color: colors.onPrimary }]}>{label}</Text>
+        <>
+          {icon ? <MaterialIcons name={icon} size={20} color={palette.fg} /> : null}
+          <Text style={[styles.label, { color: palette.fg }]}>{label}</Text>
+        </>
       )}
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -43,12 +86,14 @@ const styles = StyleSheet.create({
   button: {
     minHeight: AppSizes.buttonHeight,
     borderRadius: AppRadius.button,
+    borderWidth: 2,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 16,
+    gap: AppSpacing.sm,
+    paddingHorizontal: AppSpacing.md,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '600',
+    ...AppType.button,
   },
 });

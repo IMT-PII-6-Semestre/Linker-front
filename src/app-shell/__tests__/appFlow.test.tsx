@@ -54,7 +54,7 @@ describe('inicialização do app', () => {
     await renderRouter('app', { initialUrl: '/' });
 
     await waitFor(() => {
-      expect(screen.getByText('Painel do contratador')).toBeTruthy();
+      expect(screen.getByText('Painel administrativo')).toBeTruthy();
     });
   });
 });

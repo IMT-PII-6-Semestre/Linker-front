@@ -1,37 +1,54 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AppFonts } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
+import { safeFont } from './safeFont';
+
 interface AppLogoProps {
+  /** Tamanho da fonte do wordmark. */
   size?: number;
-  showWordmark?: boolean;
+  /** Frase de apoio abaixo da marca. */
+  tagline?: string;
+  /** Branco, para fundos roxos (splash, painel de marca). */
+  inverse?: boolean;
 }
 
 /**
- * Marca provisória — quadrado colorido com ícone de link. Trocar por uma
- * imagem/SVG quando existir identidade visual real.
+ * Wordmark "Linker." do protótipo. Trocar por SVG quando houver identidade final.
+ * Aparece na splash, antes das fontes carregarem — por isso o safeFont.
  */
-export function AppLogo({ size = 72, showWordmark = true }: AppLogoProps) {
+export function AppLogo({ size = 32, tagline, inverse = false }: AppLogoProps) {
   const colors = useAppTheme();
+  const color = inverse ? colors.onPrimary : colors.primary;
 
   return (
-    <View style={styles.container}>
-      <View
+    <View
+      style={styles.container}
+      accessible
+      accessibilityRole="header"
+      accessibilityLabel="Linker"
+    >
+      <Text
         style={[
-          styles.mark,
-          {
-            width: size,
-            height: size,
-            borderRadius: size * 0.28,
-            backgroundColor: colors.primary,
-          },
+          styles.wordmark,
+          safeFont(AppFonts.bold, '700'),
+          { fontSize: size, lineHeight: size * 1.25, color },
         ]}
       >
-        <MaterialIcons name="link" size={size * 0.55} color={colors.onPrimary} />
-      </View>
-      {showWordmark ? (
-        <Text style={[styles.wordmark, { color: colors.onSurface }]}>Linker</Text>
+        Linker
+        <Text style={{ color: inverse ? colors.onPrimary : colors.secondary }}>.</Text>
+      </Text>
+      {tagline ? (
+        <Text
+          style={[
+            styles.tagline,
+            safeFont(AppFonts.regular, '400'),
+            { color: inverse ? colors.onPrimary : colors.onSurfaceVariant },
+          ]}
+        >
+          {tagline}
+        </Text>
       ) : null}
     </View>
   );
@@ -40,14 +57,13 @@ export function AppLogo({ size = 72, showWordmark = true }: AppLogoProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    gap: 8,
-  },
-  mark: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    gap: 4,
   },
   wordmark: {
-    fontSize: 20,
-    fontWeight: '700',
+    letterSpacing: -1,
+  },
+  tagline: {
+    fontSize: 14,
+    textAlign: 'center',
   },
 });

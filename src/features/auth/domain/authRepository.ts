@@ -1,6 +1,7 @@
 import type { AppOrigin } from '@/app-shell/origin';
 import type { Result } from '@/core/error/result';
 
+import type { SignUpPayload } from './registration';
 import type { Session } from './session';
 
 /**
@@ -13,6 +14,9 @@ export interface AuthRepository {
    * entrar por ali (contratador no painel, usuário do app no mobile).
    */
   signIn(params: { email: string; password: string; origin: AppOrigin }): Promise<Result<Session>>;
+
+  /** Cria a conta (candidato ou empresa) e já devolve a sessão autenticada. */
+  signUp(params: { payload: SignUpPayload; origin: AppOrigin }): Promise<Result<Session>>;
 
   /** Sessão persistida de execuções anteriores, ou `null` se não houver. */
   restoreSession(): Promise<Session | null>;

@@ -2,10 +2,11 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppSpacing } from '@/app-shell/theme/tokens';
+import { AppFonts, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
 import { Button } from './Button';
+import { safeFont } from './safeFont';
 
 interface StartupErrorViewProps {
   onRetry: () => void;
@@ -22,7 +23,9 @@ export function StartupErrorView({ onRetry }: StartupErrorViewProps) {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.surface }]}>
       <View style={styles.content}>
         <MaterialIcons name="cloud-off" size={48} color={colors.outline} />
-        <Text style={[styles.title, { color: colors.onSurface }]}>
+        <Text
+          style={[styles.title, safeFont(AppFonts.semibold, '600'), { color: colors.onSurface }]}
+        >
           Não foi possível iniciar o Linker.
         </Text>
         <Button label="Tentar novamente" onPress={onRetry} testID="startup-retry" />
@@ -45,7 +48,6 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: '600',
     textAlign: 'center',
   },
 });

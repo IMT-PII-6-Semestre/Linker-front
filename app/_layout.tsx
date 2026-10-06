@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders, useAppOrigin, useSessionStore } from '@/app-shell/AppProviders';
-import { AppRoutes, homeFor } from '@/app-shell/routes';
+import { AppRoutes, homeFor, pathFromSegments, publicRoutesFor } from '@/app-shell/routes';
 import { ThemeProvider } from '@/app-shell/theme/ThemeProvider';
 import { useAppStartup } from '@/app-shell/useAppStartup';
 import { StartupErrorView } from '@/core/ui/StartupErrorView';
@@ -40,14 +40,15 @@ function RootLayoutGate() {
     return origin === 'mobile' ? <SplashScreen /> : <WebLoadingScreen />;
   }
 
-  const path = `/${segments.join('/')}`;
+  const path = pathFromSegments(segments);
   const home = homeFor(origin);
   const isLoggedIn = session != null;
+  const isPublic = publicRoutesFor(origin).includes(path);
 
-  if (!isLoggedIn && path !== AppRoutes.login) {
+  if (!isLoggedIn && !isPublic) {
     return <Redirect href={AppRoutes.login} />;
   }
-  if (isLoggedIn && (path === AppRoutes.login || path === '/')) {
+  if (isLoggedIn && (isPublic || path === '/')) {
     return <Redirect href={home} />;
   }
 

@@ -1,15 +1,27 @@
 /**
- * Paletas de cor light/dark, inspiradas no algoritmo de esquema do Material 3
- * a partir da cor semente 0xFF2563EB — escolhidas à mão, já que RN não tem
- * um gerador de esquema Material embutido.
+ * Paletas de cor light/dark do Linker, extraídas do protótipo (mvp.html):
+ * roxo #7B2CBF como primária, lilás #C77DFF como acento e fundo #F4F4F9.
+ *
+ * Todas as cores são hex de 6 dígitos — alguns componentes concatenam um
+ * canal alfa (`cor + '66'`). Pares texto/fundo respeitam contraste AA:
+ * por isso o lilás (`secondary`) é só acento, nunca fundo de texto branco.
  */
 
 export interface AppColorScheme {
   primary: string;
   onPrimary: string;
+  /** Roxo profundo — títulos de marca e texto sobre `primaryContainer`. */
+  primaryDark: string;
   primaryContainer: string;
   onPrimaryContainer: string;
+  /** Acento lilás (bordas tracejadas, destaques, ícones). */
+  secondary: string;
+  /** Fundo das telas. */
+  background: string;
+  /** Cards, inputs, headers. */
   surface: string;
+  /** Fundo de campos discretos (busca, input do chat, tags neutras). */
+  surfaceVariant: string;
   onSurface: string;
   onSurfaceVariant: string;
   surfaceContainerHighest: string;
@@ -19,38 +31,54 @@ export interface AppColorScheme {
   onError: string;
   errorContainer: string;
   onErrorContainer: string;
+  success: string;
+  /** Véu dos overlays (match, diálogos). */
+  scrim: string;
 }
 
 export const lightColors: AppColorScheme = {
-  primary: '#2563EB',
+  primary: '#7B2CBF',
   onPrimary: '#FFFFFF',
-  primaryContainer: '#DBEAFE',
-  onPrimaryContainer: '#1E3A8A',
-  surface: '#FDFDFF',
-  onSurface: '#1B1B1F',
-  onSurfaceVariant: '#45464F',
-  surfaceContainerHighest: '#E2E2E6',
-  outline: '#767680',
-  outlineVariant: '#C4C6D0',
-  error: '#BA1A1A',
+  primaryDark: '#3C096C',
+  primaryContainer: '#F1E6FA',
+  onPrimaryContainer: '#3C096C',
+  secondary: '#C77DFF',
+  background: '#F4F4F9',
+  surface: '#FFFFFF',
+  surfaceVariant: '#F1F3F5',
+  onSurface: '#212529',
+  // #6C757D do protótipo fica abaixo de 4.5:1 sobre o fundo #F4F4F9.
+  onSurfaceVariant: '#5C636A',
+  surfaceContainerHighest: '#E9ECEF',
+  outline: '#868E96',
+  outlineVariant: '#DEE2E6',
+  error: '#C92A2A',
   onError: '#FFFFFF',
-  errorContainer: '#FFDAD6',
-  onErrorContainer: '#410002',
+  errorContainer: '#FFE3E3',
+  onErrorContainer: '#7D1313',
+  success: '#2B8A3E',
+  scrim: '#240046',
 };
 
 export const darkColors: AppColorScheme = {
-  primary: '#A9C7FF',
-  onPrimary: '#00315F',
-  primaryContainer: '#00458F',
-  onPrimaryContainer: '#D6E3FF',
-  surface: '#121316',
-  onSurface: '#E3E2E6',
-  onSurfaceVariant: '#C5C6D0',
-  surfaceContainerHighest: '#444746',
-  outline: '#8E9099',
-  outlineVariant: '#45464F',
+  primary: '#C77DFF',
+  onPrimary: '#240046',
+  primaryDark: '#E0AAFF',
+  primaryContainer: '#3C096C',
+  onPrimaryContainer: '#F1E6FA',
+  secondary: '#E0AAFF',
+  background: '#121016',
+  surface: '#1C1A22',
+  surfaceVariant: '#26232D',
+  onSurface: '#ECE9F1',
+  onSurfaceVariant: '#B4AFBD',
+  surfaceContainerHighest: '#2E2B36',
+  outline: '#8A8494',
+  outlineVariant: '#3A3642',
   error: '#FFB4AB',
   onError: '#690005',
   errorContainer: '#93000A',
   onErrorContainer: '#FFDAD6',
+  success: '#8CE99A',
+  scrim: '#0B0014',
 };

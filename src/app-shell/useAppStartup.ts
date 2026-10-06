@@ -1,7 +1,9 @@
+import { loadAsync } from 'expo-font';
 import { useEffect, useState } from 'react';
 
 import { useSessionStoreApi } from './AppProviders';
 import { isMobile, type AppOrigin } from './origin';
+import { AppFontFiles } from './theme/tokens';
 
 /** Tempo mínimo de splash no mobile. Sem isso, em conexão rápida a marca pisca e some. */
 const MIN_SPLASH_DURATION_MS = 1200;
@@ -20,8 +22,8 @@ function delay(ms: number): Promise<void> {
 
 /**
  * Inicialização do app: tudo que precisa estar pronto antes da primeira
- * rota. Hoje é só restaurar a sessão; aqui entram depois storage, remote
- * config, crash reporting. Roda uma única vez por `origin`/`nonce` — nunca
+ * rota — restaurar a sessão e carregar a Poppins. Aqui entram depois
+ * storage, remote config, crash reporting. Roda uma única vez por `origin`/`nonce` — nunca
  * redispara por mudança de sessão, senão cada login relançaria a splash.
  */
 export function useAppStartup(origin: AppOrigin): AppStartup {
@@ -35,8 +37,10 @@ export function useAppStartup(origin: AppOrigin): AppStartup {
 
     const restore = sessionStore.getState().restore();
     const minSplash = isMobile(origin) ? delay(MIN_SPLASH_DURATION_MS) : Promise.resolve();
+    // Fonte que falha não derruba o app: o texto cai na fonte do sistema.
+    const fonts = loadAsync(AppFontFiles).catch(() => undefined);
 
-    Promise.all([restore, minSplash])
+    Promise.all([restore, minSplash, fonts])
       .then(() => {
         if (cancelled) return;
         // restore() trata seus próprios erros e nunca rejeita — o resultado

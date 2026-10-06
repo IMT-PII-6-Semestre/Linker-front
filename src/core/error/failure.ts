@@ -6,6 +6,7 @@ export type Failure =
   | { type: 'network'; message: string }
   | { type: 'invalidCredentials'; message: string }
   | { type: 'unauthorized'; message: string }
+  | { type: 'conflict'; message: string }
   | { type: 'server'; statusCode: number; message: string }
   | { type: 'unexpected'; message: string };
 
@@ -19,6 +20,11 @@ export function InvalidCredentialsFailure(message = 'E-mail ou senha incorretos.
 
 export function UnauthorizedFailure(message = 'Sua sessão expirou. Entre novamente.'): Failure {
   return { type: 'unauthorized', message };
+}
+
+/** O recurso já existe (ex.: e-mail já cadastrado). */
+export function ConflictFailure(message = 'Este e-mail já está cadastrado.'): Failure {
+  return { type: 'conflict', message };
 }
 
 export function ServerFailure(

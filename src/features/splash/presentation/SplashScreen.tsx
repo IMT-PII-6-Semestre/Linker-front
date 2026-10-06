@@ -1,9 +1,9 @@
-import { MaterialIcons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, StyleSheet, View } from 'react-native';
 
 import { AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
+import { AppLogo } from '@/core/ui/AppLogo';
 
 /**
  * Tela de carregamento do app mobile, exibida enquanto o app restaura a
@@ -28,10 +28,7 @@ export function SplashScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.primary }]}>
       <Animated.View style={{ opacity: progress, transform: [{ scale }], alignItems: 'center' }}>
-        <View style={[styles.mark, { backgroundColor: colors.onPrimary }]}>
-          <MaterialIcons name="link" size={48} color={colors.primary} />
-        </View>
-        <Text style={[styles.title, { color: colors.onPrimary }]}>Linker</Text>
+        <AppLogo size={48} inverse tagline="Para pessoas e empresas reais." />
         <View style={styles.spinner}>
           <ActivityIndicator size="small" color={colors.onPrimary} />
         </View>
@@ -45,19 +42,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  mark: {
-    width: 88,
-    height: 88,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    marginTop: AppSpacing.lg,
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: -0.5,
   },
   spinner: {
     marginTop: AppSpacing.xxl,

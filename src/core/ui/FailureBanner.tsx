@@ -1,7 +1,7 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { AppRadius, AppSpacing } from '@/app-shell/theme/tokens';
+import { AppFonts, AppRadius, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 import type { Failure } from '@/core/error/failure';
 
@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   },
   message: {
     flex: 1,
+    fontFamily: AppFonts.regular,
     fontSize: 14,
   },
 });

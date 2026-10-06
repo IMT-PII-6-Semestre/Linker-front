@@ -4,6 +4,7 @@ import type { AppOrigin } from '@/app-shell/origin';
 import type { Result } from '@/core/error/result';
 
 import type { AuthRepository } from '../domain/authRepository';
+import type { SignUpPayload } from '../domain/registration';
 import type { Session } from '../domain/session';
 
 export type SessionStatus = 'idle' | 'loading' | 'data' | 'error';
@@ -19,6 +20,8 @@ export interface SessionState {
   restore: () => Promise<void>;
   /** Devolve o Result para o formulário conseguir mostrar o erro inline. */
   signIn: (params: { email: string; password: string }) => Promise<Result<Session>>;
+  /** Cadastro com login automático — mesmo contrato de Result do signIn. */
+  signUp: (payload: SignUpPayload) => Promise<Result<Session>>;
   signOut: () => Promise<void>;
 }
 
@@ -43,6 +46,14 @@ export function createSessionStore(
 
     signIn: async ({ email, password }) => {
       const result = await authRepository.signIn({ email, password, origin });
+      if (result.kind === 'ok') {
+        set({ session: result.value, status: 'data' });
+      }
+      return result;
+    },
+
+    signUp: async (payload) => {
+      const result = await authRepository.signUp({ payload, origin });
       if (result.kind === 'ok') {
         set({ session: result.value, status: 'data' });
       }

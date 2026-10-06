@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AppSpacing } from '@/app-shell/theme/tokens';
+import { AppFonts, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
 import { Button } from './Button';
@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
     padding: AppSpacing.lg,
   },
   code: {
+    fontFamily: AppFonts.bold,
     fontSize: 36,
-    fontWeight: '700',
   },
 });

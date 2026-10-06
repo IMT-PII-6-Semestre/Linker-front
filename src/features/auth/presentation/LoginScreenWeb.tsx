@@ -1,15 +1,16 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppBreakpoints, AppSizes, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 import { AppLogo } from '@/core/ui/AppLogo';
+import { AppText } from '@/core/ui/AppText';
 
 import { LoginForm } from './LoginForm';
 
 /**
- * Login do painel web do contratador.
+ * Login do painel web (dashboard administrativo do Linker).
  *
  * Acima de AppBreakpoints.wide usa duas colunas (marca + formulário);
  * abaixo, vira uma coluna só — o painel também abre em tablet e janela
@@ -40,16 +41,18 @@ function BrandPane() {
 
   return (
     <LinearGradient
-      colors={[colors.primary, colors.primaryContainer]}
+      colors={[colors.primary, colors.primaryDark]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.brandPane}
     >
-      <AppLogo size={56} showWordmark={false} />
-      <Text style={[styles.brandHeadline, { color: colors.onPrimary }]}>Painel do contratador</Text>
-      <Text style={[styles.brandSubtitle, { color: colors.onPrimary }]}>
-        Acompanhe suas contratações em um só lugar.
-      </Text>
+      <AppLogo size={48} inverse />
+      <AppText variant="display" style={[styles.brandHeadline, { color: colors.onPrimary }]}>
+        Painel administrativo
+      </AppText>
+      <AppText style={[styles.brandSubtitle, { color: colors.onPrimary }]}>
+        Usuários, matches e vagas do Linker em um só lugar.
+      </AppText>
     </LinearGradient>
   );
 }
@@ -61,16 +64,12 @@ function FormPane({ showLogo }: { showLogo: boolean }) {
     <SafeAreaView style={[styles.formPaneContainer, { backgroundColor: colors.surface }]}>
       <ScrollView contentContainerStyle={styles.formScrollContent}>
         <View style={[styles.formContent, { maxWidth: AppSizes.formMaxWidth }]}>
-          {showLogo ? (
-            <View style={styles.logoWrapper}>
-              <AppLogo size={56} />
-            </View>
-          ) : null}
+          {showLogo ? <AppLogo size={40} /> : null}
           <View style={styles.headlineGroup}>
-            <Text style={[styles.headline, { color: colors.onSurface }]}>Entrar no painel</Text>
-            <Text style={[styles.subtitle, { color: colors.onSurfaceVariant }]}>
-              Use o e-mail cadastrado na sua empresa.
-            </Text>
+            <AppText variant="title" accessibilityRole="header">
+              Entrar no painel
+            </AppText>
+            <AppText color="onSurfaceVariant">Acesso restrito à equipe Linker.</AppText>
           </View>
           <LoginForm submitLabel="Entrar no painel" />
         </View>
@@ -95,13 +94,11 @@ const styles = StyleSheet.create({
   },
   brandHeadline: {
     marginTop: AppSpacing.xl,
-    fontSize: 32,
-    fontWeight: '700',
   },
   brandSubtitle: {
     marginTop: AppSpacing.md,
     fontSize: 16,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   formPaneContainer: {
     flex: 1,
@@ -116,17 +113,7 @@ const styles = StyleSheet.create({
     width: '100%',
     gap: AppSpacing.xl,
   },
-  logoWrapper: {
-    alignItems: 'center',
-  },
   headlineGroup: {
     gap: AppSpacing.xs,
-  },
-  headline: {
-    fontSize: 24,
-    fontWeight: '700',
-  },
-  subtitle: {
-    fontSize: 14,
   },
 });

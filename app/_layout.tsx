@@ -1,4 +1,6 @@
 import { Redirect, Slot, useSegments } from 'expo-router';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders, useAppOrigin, useSessionStore } from '@/app-shell/AppProviders';
 import { AppRoutes, homeFor } from '@/app-shell/routes';
@@ -10,11 +12,13 @@ import { WebLoadingScreen } from '@/features/splash/presentation/WebLoadingScree
 
 export default function RootLayout() {
   return (
-    <AppProviders>
-      <ThemeProvider>
-        <RootLayoutGate />
-      </ThemeProvider>
-    </AppProviders>
+    <GestureHandlerRootView style={styles.root}>
+      <AppProviders>
+        <ThemeProvider>
+          <RootLayoutGate />
+        </ThemeProvider>
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }
 
@@ -49,3 +53,9 @@ function RootLayoutGate() {
 
   return <Slot />;
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});

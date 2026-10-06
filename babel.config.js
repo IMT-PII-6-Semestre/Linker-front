@@ -1,7 +1,7 @@
 module.exports = function (api) {
   api.cache(true);
   return {
+    // O preset do Expo já inclui o plugin de worklets/reanimated.
     presets: ['babel-preset-expo'],
-    plugins: ['nativewind/babel'], // Esta é a linha mágica que destrava o app
   };
 };

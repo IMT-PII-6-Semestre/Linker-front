@@ -13,7 +13,7 @@ import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
 import { PressableScale } from './PressableScale';
 
-export type ButtonVariant = 'filled' | 'outline' | 'ghost' | 'inverse' | 'danger';
+export type ButtonVariant = 'filled' | 'outline' | 'ghost' | 'inverse' | 'outlineInverse' | 'danger';
 
 interface ButtonProps {
   label: string;
@@ -29,7 +29,7 @@ interface ButtonProps {
 
 /**
  * Botão do app. `filled` é a ação principal; `outline` a secundária;
- * `ghost` ação de texto; `inverse` botão branco sobre fundo roxo (overlay);
+ * `ghost` ação de texto; `inverse`/`outlineInverse` sobre fundo roxo (overlay);
  * `danger` ação destrutiva (remover, bloquear).
  */
 export function Button({
@@ -51,6 +51,7 @@ export function Button({
     outline: { bg: 'transparent', fg: colors.primary, border: colors.primary },
     ghost: { bg: 'transparent', fg: colors.primary, border: 'transparent' },
     inverse: { bg: colors.surface, fg: colors.primary, border: colors.surface },
+    outlineInverse: { bg: 'transparent', fg: colors.onPrimary, border: colors.onPrimary },
     danger: { bg: colors.error, fg: colors.onError, border: colors.error },
   }[variant];
 

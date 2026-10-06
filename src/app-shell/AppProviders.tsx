@@ -4,6 +4,9 @@ import { useStore, type StoreApi } from 'zustand';
 import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
 import type { AuthRepository } from '@/features/auth/domain/authRepository';
 import { createSessionStore, type SessionState } from '@/features/auth/state/sessionStore';
+import { FakeFeedRepository } from '@/features/feed/data/fakeFeedRepository';
+import type { FeedRepository } from '@/features/feed/domain/feedRepository';
+import { createFeedStore, type FeedState } from '@/features/feed/state/feedStore';
 import { FakeProfileRepository } from '@/features/profile/data/fakeProfileRepository';
 import type { ProfileRepository } from '@/features/profile/domain/profileRepository';
 import { createProfileStore, type ProfileState } from '@/features/profile/state/profileStore';
@@ -15,6 +18,7 @@ import { resolveAppOrigin, type AppOrigin } from './origin';
 const OriginContext = createContext<AppOrigin | null>(null);
 const SessionStoreContext = createContext<StoreApi<SessionState> | null>(null);
 const ProfileStore = createStoreContext<ProfileState>('useProfileStore');
+const FeedStore = createStoreContext<FeedState>('useFeedStore');
 
 interface AppProvidersProps {
   /** Default: resolveAppOrigin(). Override usado pelos testes. */
@@ -23,6 +27,8 @@ interface AppProvidersProps {
   authRepository?: AuthRepository;
   /** Default: FakeProfileRepository. Override usado pelos testes. */
   profileRepository?: ProfileRepository;
+  /** Default: FakeFeedRepository. Override usado pelos testes. */
+  feedRepository?: FeedRepository;
   children: ReactNode;
 }
 
@@ -32,7 +38,13 @@ interface AppProvidersProps {
  * para não perder estado em Fast Refresh e para permitir que cada teste
  * monte sua própria instância isolada.
  */
-export function AppProviders({ origin, authRepository, profileRepository, children }: AppProvidersProps) {
+export function AppProviders({
+  origin,
+  authRepository,
+  profileRepository,
+  feedRepository,
+  children,
+}: AppProvidersProps) {
   const resolvedOrigin = origin ?? resolveAppOrigin();
 
   const [stores] = useState(() => {
@@ -45,13 +57,16 @@ export function AppProviders({ origin, authRepository, profileRepository, childr
     return {
       session: createSessionStore(auth, resolvedOrigin),
       profile: createProfileStore(profileRepository ?? fakeProfiles),
+      feed: createFeedStore(feedRepository ?? new FakeFeedRepository()),
     };
   });
 
   return (
     <OriginContext.Provider value={resolvedOrigin}>
       <SessionStoreContext.Provider value={stores.session}>
-        <ProfileStore.Provider value={stores.profile}>{children}</ProfileStore.Provider>
+        <ProfileStore.Provider value={stores.profile}>
+          <FeedStore.Provider value={stores.feed}>{children}</FeedStore.Provider>
+        </ProfileStore.Provider>
       </SessionStoreContext.Provider>
     </OriginContext.Provider>
   );
@@ -84,3 +99,5 @@ export function useSessionStoreApi(): StoreApi<SessionState> {
 
 export const useProfileStore = ProfileStore.useSelector;
 export const useProfileStoreApi = ProfileStore.useStoreApi;
+export const useFeedStore = FeedStore.useSelector;
+export const useFeedStoreApi = FeedStore.useStoreApi;

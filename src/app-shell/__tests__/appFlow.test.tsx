@@ -39,7 +39,7 @@ describe('inicialização do app', () => {
     );
   });
 
-  it('mobile: login leva às abas sem reiniciar o app, e logout volta ao login', async () => {
+  it('mobile: login leva ao feed sem reiniciar o app, e sair (no perfil) volta ao login', async () => {
     process.env.EXPO_PUBLIC_APP_ORIGIN = 'mobile';
 
     await renderRouter('app', { initialUrl: '/' });
@@ -50,10 +50,13 @@ describe('inicialização do app', () => {
     await fireEvent.press(screen.getByTestId('login-submit'));
 
     // Chega ao feed (aba inicial) com a barra de abas — e não volta ao login.
-    await waitFor(() => expect(screen.getByText('Perfil')).toBeTruthy(), { timeout: 4000 });
+    await waitFor(() => expect(screen.getByText('Vagas Abertas')).toBeTruthy(), { timeout: 4000 });
     expect(screen.queryByTestId('login-email')).toBeNull();
 
-    await fireEvent.press(screen.getByTestId('logout-button'));
+    // Sair fica no Perfil, com confirmação.
+    await fireEvent.press(screen.getByText('Perfil'));
+    await fireEvent.press(await screen.findByTestId('logout-button'));
+    await fireEvent.press(await screen.findByTestId('confirm-dialog-confirm'));
     await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
   });
 

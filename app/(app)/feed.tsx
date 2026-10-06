@@ -1,6 +1,5 @@
-import { HomeStubScreen } from '@/features/home/presentation/HomeStubScreen';
+import { FeedScreen } from '@/features/feed/presentation/FeedScreen';
 
-// Provisório até a Página 4 (Feed).
 export default function FeedRoute() {
-  return <HomeStubScreen title="Feed" />;
+  return <FeedScreen />;
 }

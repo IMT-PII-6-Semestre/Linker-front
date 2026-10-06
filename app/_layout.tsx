@@ -40,6 +40,8 @@ function RootNavigator() {
   const ready = startup.status === 'ready';
   const loggedIn = session != null;
   const mobile = isMobile(origin);
+  // Admin só usa o painel web: no app ele não vê feed/chat/perfil.
+  const admin = session?.role === 'admin';
 
   return (
     <StartupProvider value={startup}>
@@ -57,8 +59,11 @@ function RootNavigator() {
           <Stack.Screen name="cadastro" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
 
-        <Stack.Protected guard={ready && loggedIn && mobile}>
+        <Stack.Protected guard={ready && loggedIn && mobile && !admin}>
           <Stack.Screen name="(app)" />
+        </Stack.Protected>
+        <Stack.Protected guard={ready && loggedIn && mobile && admin}>
+          <Stack.Screen name="somente-web" />
         </Stack.Protected>
         <Stack.Protected guard={ready && loggedIn && !mobile}>
           <Stack.Screen name="painel" />

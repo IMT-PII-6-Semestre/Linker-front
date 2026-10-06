@@ -60,6 +60,25 @@ describe('inicialização do app', () => {
     await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
   });
 
+  it('mobile: admin não vê as abas do app, só o aviso de usar o painel web', async () => {
+    process.env.EXPO_PUBLIC_APP_ORIGIN = 'mobile';
+
+    await renderRouter('app', { initialUrl: '/' });
+    await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
+
+    await fireEvent.changeText(screen.getByTestId('login-email'), 'admin@linker.com');
+    await fireEvent.changeText(screen.getByTestId('login-password'), '123456');
+    await fireEvent.press(screen.getByTestId('login-submit'));
+
+    await waitFor(() => expect(screen.getByTestId('admin-web-only')).toBeTruthy(), { timeout: 4000 });
+    expect(screen.queryByText('Vagas Abertas')).toBeNull();
+    expect(screen.queryByText('Vagas')).toBeNull();
+    expect(screen.queryByText('Chat')).toBeNull();
+
+    await fireEvent.press(screen.getByTestId('logout-button'));
+    await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
+  });
+
   it('web: login leva ao painel sem reiniciar o app', async () => {
     process.env.EXPO_PUBLIC_APP_ORIGIN = 'web';
 

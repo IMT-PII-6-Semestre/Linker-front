@@ -1,9 +1,10 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { Modal, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInUp, ZoomIn } from 'react-native-reanimated';
 
 import { AppFonts, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
+import { AppModal } from '@/core/ui/AppModal';
 import { AppText } from '@/core/ui/AppText';
 import { Avatar } from '@/core/ui/Avatar';
 import { Button } from '@/core/ui/Button';
@@ -28,7 +29,7 @@ export function MatchOverlay({ post, myName, onSendMessage, onKeepSwiping }: Mat
       : `${post.nome} também curtiu a sua vaga!`;
 
   return (
-    <Modal visible transparent animationType="fade" onRequestClose={onKeepSwiping} statusBarTranslucent>
+    <AppModal visible onRequestClose={onKeepSwiping}>
       <View
         testID="match-overlay"
         accessibilityViewIsModal
@@ -58,7 +59,7 @@ export function MatchOverlay({ post, myName, onSendMessage, onKeepSwiping }: Mat
           <Button testID="match-keep-swiping" label="Continuar deslizando" variant="outlineInverse" onPress={onKeepSwiping} />
         </Animated.View>
       </View>
-    </Modal>
+    </AppModal>
   );
 }
 

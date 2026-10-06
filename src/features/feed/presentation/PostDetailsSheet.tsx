@@ -7,12 +7,19 @@ import { Button } from '@/core/ui/Button';
 import { SheetModal } from '@/core/ui/SheetModal';
 import { Tag, TagList } from '@/core/ui/Tag';
 
-import { postTitle, type CandidatoPost, type FeedPost, type SwipeDirection, type VagaPost } from '../domain/feed';
+import {
+  postTitle,
+  type CandidatoPost,
+  type FeedPost,
+  type SwipeDirection,
+  type VagaPost,
+} from '../domain/feed';
 
 interface PostDetailsSheetProps {
   post: FeedPost;
   onClose: () => void;
-  onDecide: (direction: SwipeDirection) => void;
+  /** Sem `onDecide` (ex.: aberto pelo chat), a folha é só leitura. */
+  onDecide?: (direction: SwipeDirection) => void;
 }
 
 /** "Ver detalhes": o post completo, com as mesmas ações do card. */
@@ -24,16 +31,24 @@ export function PostDetailsSheet({ post, onClose, onDecide }: PostDetailsSheetPr
       title={postTitle(post)}
       onClose={onClose}
       footer={
-        <View style={styles.actions}>
-          <Button label="Passar" variant="outline" icon="close" onPress={() => onDecide('pass')} style={styles.flex} />
-          <Button
-            testID="details-like"
-            label="Dar match"
-            icon="favorite"
-            onPress={() => onDecide('like')}
-            style={styles.flex}
-          />
-        </View>
+        onDecide ? (
+          <View style={styles.actions}>
+            <Button
+              label="Passar"
+              variant="outline"
+              icon="close"
+              onPress={() => onDecide('pass')}
+              style={styles.flex}
+            />
+            <Button
+              testID="details-like"
+              label="Dar match"
+              icon="favorite"
+              onPress={() => onDecide('like')}
+              style={styles.flex}
+            />
+          </View>
+        ) : undefined
       }
     >
       {post.kind === 'vaga' ? <VagaDetails post={post} /> : <CandidatoDetails post={post} />}

@@ -4,6 +4,9 @@ import { useStore, type StoreApi } from 'zustand';
 import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
 import type { AuthRepository } from '@/features/auth/domain/authRepository';
 import { createSessionStore, type SessionState } from '@/features/auth/state/sessionStore';
+import { FakeChatRepository } from '@/features/chat/data/fakeChatRepository';
+import type { ChatRepository } from '@/features/chat/domain/chatRepository';
+import { createChatStore, type ChatState } from '@/features/chat/state/chatStore';
 import { FakeFeedRepository } from '@/features/feed/data/fakeFeedRepository';
 import type { FeedRepository } from '@/features/feed/domain/feedRepository';
 import { createFeedStore, type FeedState } from '@/features/feed/state/feedStore';
@@ -19,6 +22,7 @@ const OriginContext = createContext<AppOrigin | null>(null);
 const SessionStoreContext = createContext<StoreApi<SessionState> | null>(null);
 const ProfileStore = createStoreContext<ProfileState>('useProfileStore');
 const FeedStore = createStoreContext<FeedState>('useFeedStore');
+const ChatStore = createStoreContext<ChatState>('useChatStore');
 
 interface AppProvidersProps {
   /** Default: resolveAppOrigin(). Override usado pelos testes. */
@@ -29,6 +33,8 @@ interface AppProvidersProps {
   profileRepository?: ProfileRepository;
   /** Default: FakeFeedRepository. Override usado pelos testes. */
   feedRepository?: FeedRepository;
+  /** Default: FakeChatRepository. Override usado pelos testes. */
+  chatRepository?: ChatRepository;
   children: ReactNode;
 }
 
@@ -43,6 +49,7 @@ export function AppProviders({
   authRepository,
   profileRepository,
   feedRepository,
+  chatRepository,
   children,
 }: AppProvidersProps) {
   const resolvedOrigin = origin ?? resolveAppOrigin();
@@ -50,14 +57,19 @@ export function AppProviders({
   const [stores] = useState(() => {
     // Sem backend: o fake de auth avisa o fake de perfil sobre novos
     // cadastros, como a API real faria ao criar a conta.
+    // Idem: um match no feed abre a conversa no chat.
     const fakeProfiles = new FakeProfileRepository();
+    const fakeChat = new FakeChatRepository();
     const auth =
       authRepository ??
       new FakeAuthRepository(undefined, (session, payload) => fakeProfiles.seedFromSignUp(session, payload));
     return {
       session: createSessionStore(auth, resolvedOrigin),
       profile: createProfileStore(profileRepository ?? fakeProfiles),
-      feed: createFeedStore(feedRepository ?? new FakeFeedRepository()),
+      feed: createFeedStore(
+        feedRepository ?? new FakeFeedRepository(undefined, (match) => fakeChat.createFromMatch(match)),
+      ),
+      chat: createChatStore(chatRepository ?? fakeChat),
     };
   });
 
@@ -65,7 +77,9 @@ export function AppProviders({
     <OriginContext.Provider value={resolvedOrigin}>
       <SessionStoreContext.Provider value={stores.session}>
         <ProfileStore.Provider value={stores.profile}>
-          <FeedStore.Provider value={stores.feed}>{children}</FeedStore.Provider>
+          <FeedStore.Provider value={stores.feed}>
+            <ChatStore.Provider value={stores.chat}>{children}</ChatStore.Provider>
+          </FeedStore.Provider>
         </ProfileStore.Provider>
       </SessionStoreContext.Provider>
     </OriginContext.Provider>
@@ -101,3 +115,5 @@ export const useProfileStore = ProfileStore.useSelector;
 export const useProfileStoreApi = ProfileStore.useStoreApi;
 export const useFeedStore = FeedStore.useSelector;
 export const useFeedStoreApi = FeedStore.useStoreApi;
+export const useChatStore = ChatStore.useSelector;
+export const useChatStoreApi = ChatStore.useStoreApi;

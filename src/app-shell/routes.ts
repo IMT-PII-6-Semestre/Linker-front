@@ -19,3 +19,8 @@ export const AppRoutes = {
 export function homeFor(origin: AppOrigin): string {
   return isWeb(origin) ? AppRoutes.painel : AppRoutes.feed;
 }
+
+/** Conversa aberta (o id é o mesmo do match). */
+export function conversaRoute(conversationId: string): string {
+  return `${AppRoutes.chat}/${encodeURIComponent(conversationId)}`;
+}

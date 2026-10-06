@@ -6,7 +6,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useFeedStore, useFeedStoreApi, useSessionStore } from '@/app-shell/AppProviders';
-import { AppRoutes } from '@/app-shell/routes';
+import { conversaRoute } from '@/app-shell/routes';
 import { AppShadows, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 import { AppText } from '@/core/ui/AppText';
@@ -183,8 +183,10 @@ export function FeedScreen() {
           myName={session.name}
           onKeepSwiping={dismissMatch}
           onSendMessage={() => {
+            const { matchId } = match;
             dismissMatch();
-            router.navigate(AppRoutes.chat);
+            // withAnchor: a lista de conversas fica embaixo — "voltar" cai nela.
+            router.navigate(conversaRoute(matchId), { withAnchor: true });
           }}
         />
       ) : null}

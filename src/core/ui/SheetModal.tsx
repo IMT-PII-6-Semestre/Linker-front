@@ -2,7 +2,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -15,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppSizes, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
+import { AppModal } from './AppModal';
 import { AppText } from './AppText';
 
 interface SheetModalProps {
@@ -32,60 +32,70 @@ interface SheetModalProps {
  * "x", tocando fora ou no voltar do Android. A animação de entrada segue o
  * "reduzir movimento" do sistema (padrão do Reanimated).
  */
-export function SheetModal({ visible, title, onClose, children, footer, testID }: SheetModalProps) {
+export function SheetModal(props: SheetModalProps) {
+  return (
+    <AppModal visible={props.visible} onRequestClose={props.onClose}>
+      <Sheet {...props} />
+    </AppModal>
+  );
+}
+
+/** Conteúdo da folha — fica dentro do SafeAreaProvider do modal. */
+function Sheet({ title, onClose, children, footer, testID }: SheetModalProps) {
   const colors = useAppTheme();
   const insets = useSafeAreaInsets();
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
-      <View style={styles.root}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Fechar"
-          onPress={onClose}
-          style={[StyleSheet.absoluteFill, { backgroundColor: colors.scrim + 'AA' }]}
-        />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.avoider}
-          pointerEvents="box-none"
+    <View style={styles.root}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Fechar"
+        onPress={onClose}
+        style={[StyleSheet.absoluteFill, { backgroundColor: colors.scrim + 'AA' }]}
+      />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={[styles.avoider, { marginTop: insets.top + AppSpacing.lg }]}
+        pointerEvents="box-none"
+      >
+        <Animated.View
+          testID={testID}
+          entering={SlideInDown.springify().damping(20)}
+          accessibilityViewIsModal
+          style={[
+            styles.sheet,
+            { backgroundColor: colors.background, paddingBottom: insets.bottom + AppSpacing.md },
+          ]}
         >
-          <Animated.View
-            testID={testID}
-            entering={SlideInDown.springify().damping(20)}
-            accessibilityViewIsModal
-            style={[
-              styles.sheet,
-              { backgroundColor: colors.background, paddingBottom: Math.max(insets.bottom, AppSpacing.md) },
-            ]}
-          >
-            <View style={[styles.handle, { backgroundColor: colors.outlineVariant }]} />
-            <View style={styles.header}>
-              <AppText variant="heading" accessibilityRole="header" style={styles.title}>
-                {title}
-              </AppText>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Fechar"
-                onPress={onClose}
-                hitSlop={8}
-                style={styles.close}
-              >
-                <MaterialIcons name="close" size={24} color={colors.onSurfaceVariant} />
-              </Pressable>
-            </View>
-            <ScrollView
-              contentContainerStyle={styles.content}
-              keyboardShouldPersistTaps="handled"
-              showsVerticalScrollIndicator={false}
+          <View style={[styles.handle, { backgroundColor: colors.outlineVariant }]} />
+          <View style={styles.header}>
+            <AppText variant="heading" accessibilityRole="header" style={styles.title}>
+              {title}
+            </AppText>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Fechar"
+              onPress={onClose}
+              hitSlop={8}
+              style={styles.close}
             >
-              {children}
-            </ScrollView>
-            {footer ? <View style={styles.footer}>{footer}</View> : null}
-          </Animated.View>
-        </KeyboardAvoidingView>
-      </View>
-    </Modal>
+              <MaterialIcons name="close" size={24} color={colors.onSurfaceVariant} />
+            </Pressable>
+          </View>
+          <ScrollView
+            style={styles.scroll}
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </ScrollView>
+          {footer ? (
+            <View style={[styles.footer, { borderTopColor: colors.outlineVariant }]}>{footer}</View>
+          ) : null}
+        </Animated.View>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -95,12 +105,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   avoider: {
-    maxHeight: '92%',
+    flexShrink: 1,
   },
   sheet: {
+    flexShrink: 1,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '100%',
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',
@@ -127,6 +137,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scroll: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
   content: {
     paddingHorizontal: AppSpacing.lg,
     paddingBottom: AppSpacing.md,
@@ -134,6 +148,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: AppSpacing.lg,
-    paddingTop: AppSpacing.sm,
+    paddingTop: AppSpacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
 });

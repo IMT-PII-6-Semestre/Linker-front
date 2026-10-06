@@ -1,9 +1,10 @@
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 
 import { AppRadius, AppSpacing } from '@/app-shell/theme/tokens';
 import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
+import { AppModal } from './AppModal';
 import { AppText } from './AppText';
 import { Button } from './Button';
 
@@ -39,7 +40,7 @@ export function ConfirmDialog({
   const colors = useAppTheme();
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel} statusBarTranslucent>
+    <AppModal visible={visible} onRequestClose={onCancel}>
       <View style={styles.root}>
         <Pressable
           accessibilityRole="button"
@@ -70,7 +71,7 @@ export function ConfirmDialog({
           </View>
         </Animated.View>
       </View>
-    </Modal>
+    </AppModal>
   );
 }
 

@@ -1,6 +1,5 @@
-import { HomeStubScreen } from '@/features/home/presentation/HomeStubScreen';
+import { ChatListScreen } from '@/features/chat/presentation/ChatListScreen';
 
-// Provisório até a Página 5 (Chat).
 export default function ChatListRoute() {
-  return <HomeStubScreen title="Mensagens" />;
+  return <ChatListScreen />;
 }

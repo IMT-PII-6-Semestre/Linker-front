@@ -34,6 +34,15 @@ export interface AppColorScheme {
   success: string;
   /** Véu dos overlays (match, diálogos). */
   scrim: string;
+  /**
+   * Gráficos do painel. Par categórico validado (luminosidade, croma,
+   * separação para daltonismo e contraste) contra a superfície de cada modo.
+   * `dataSeries1` também é a cor única dos gráficos de magnitude.
+   */
+  dataSeries1: string;
+  dataSeries2: string;
+  /** Trilho do medidor: passo mais claro da mesma rampa da série 1. */
+  dataTrack: string;
 }
 
 export const lightColors: AppColorScheme = {
@@ -58,6 +67,9 @@ export const lightColors: AppColorScheme = {
   onErrorContainer: '#7D1313',
   success: '#2B8A3E',
   scrim: '#240046',
+  dataSeries1: '#7B2CBF',
+  dataSeries2: '#EB6834',
+  dataTrack: '#F1E6FA',
 };
 
 export const darkColors: AppColorScheme = {
@@ -81,4 +93,7 @@ export const darkColors: AppColorScheme = {
   onErrorContainer: '#FFDAD6',
   success: '#8CE99A',
   scrim: '#0B0014',
+  dataSeries1: '#A855F7',
+  dataSeries2: '#D95926',
+  dataTrack: '#3C096C',
 };

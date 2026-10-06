@@ -1,5 +1,5 @@
-import { HomeStubScreen } from '@/features/home/presentation/HomeStubScreen';
+import { AdminDashboardScreen } from '@/features/admin/presentation/AdminDashboardScreen';
 
 export default function PainelRoute() {
-  return <HomeStubScreen title="Painel do contratador" />;
+  return <AdminDashboardScreen />;
 }

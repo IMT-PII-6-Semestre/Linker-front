@@ -4,6 +4,9 @@ import { useStore, type StoreApi } from 'zustand';
 import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
 import type { AuthRepository } from '@/features/auth/domain/authRepository';
 import { createSessionStore, type SessionState } from '@/features/auth/state/sessionStore';
+import { FakeAdminRepository } from '@/features/admin/data/fakeAdminRepository';
+import type { AdminRepository } from '@/features/admin/domain/adminRepository';
+import { createAdminStore, type AdminState } from '@/features/admin/state/adminStore';
 import { FakeChatRepository } from '@/features/chat/data/fakeChatRepository';
 import type { ChatRepository } from '@/features/chat/domain/chatRepository';
 import { createChatStore, type ChatState } from '@/features/chat/state/chatStore';
@@ -23,6 +26,7 @@ const SessionStoreContext = createContext<StoreApi<SessionState> | null>(null);
 const ProfileStore = createStoreContext<ProfileState>('useProfileStore');
 const FeedStore = createStoreContext<FeedState>('useFeedStore');
 const ChatStore = createStoreContext<ChatState>('useChatStore');
+const AdminStore = createStoreContext<AdminState>('useAdminStore');
 
 interface AppProvidersProps {
   /** Default: resolveAppOrigin(). Override usado pelos testes. */
@@ -35,6 +39,8 @@ interface AppProvidersProps {
   feedRepository?: FeedRepository;
   /** Default: FakeChatRepository. Override usado pelos testes. */
   chatRepository?: ChatRepository;
+  /** Default: FakeAdminRepository. Override usado pelos testes. */
+  adminRepository?: AdminRepository;
   children: ReactNode;
 }
 
@@ -50,6 +56,7 @@ export function AppProviders({
   profileRepository,
   feedRepository,
   chatRepository,
+  adminRepository,
   children,
 }: AppProvidersProps) {
   const resolvedOrigin = origin ?? resolveAppOrigin();
@@ -70,6 +77,7 @@ export function AppProviders({
         feedRepository ?? new FakeFeedRepository(undefined, (match) => fakeChat.createFromMatch(match)),
       ),
       chat: createChatStore(chatRepository ?? fakeChat),
+      admin: createAdminStore(adminRepository ?? new FakeAdminRepository()),
     };
   });
 
@@ -78,7 +86,9 @@ export function AppProviders({
       <SessionStoreContext.Provider value={stores.session}>
         <ProfileStore.Provider value={stores.profile}>
           <FeedStore.Provider value={stores.feed}>
-            <ChatStore.Provider value={stores.chat}>{children}</ChatStore.Provider>
+            <ChatStore.Provider value={stores.chat}>
+              <AdminStore.Provider value={stores.admin}>{children}</AdminStore.Provider>
+            </ChatStore.Provider>
           </FeedStore.Provider>
         </ProfileStore.Provider>
       </SessionStoreContext.Provider>
@@ -117,3 +127,5 @@ export const useFeedStore = FeedStore.useSelector;
 export const useFeedStoreApi = FeedStore.useStoreApi;
 export const useChatStore = ChatStore.useSelector;
 export const useChatStoreApi = ChatStore.useStoreApi;
+export const useAdminStore = AdminStore.useSelector;
+export const useAdminStoreApi = AdminStore.useStoreApi;

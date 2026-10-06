@@ -4,17 +4,25 @@ import { useStore, type StoreApi } from 'zustand';
 import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
 import type { AuthRepository } from '@/features/auth/domain/authRepository';
 import { createSessionStore, type SessionState } from '@/features/auth/state/sessionStore';
+import { FakeProfileRepository } from '@/features/profile/data/fakeProfileRepository';
+import type { ProfileRepository } from '@/features/profile/domain/profileRepository';
+import { createProfileStore, type ProfileState } from '@/features/profile/state/profileStore';
+
+import { createStoreContext } from './createStoreContext';
 
 import { resolveAppOrigin, type AppOrigin } from './origin';
 
 const OriginContext = createContext<AppOrigin | null>(null);
 const SessionStoreContext = createContext<StoreApi<SessionState> | null>(null);
+const ProfileStore = createStoreContext<ProfileState>('useProfileStore');
 
 interface AppProvidersProps {
   /** Default: resolveAppOrigin(). Override usado pelos testes. */
   origin?: AppOrigin;
   /** Default: FakeAuthRepository. Override usado pelos testes. */
   authRepository?: AuthRepository;
+  /** Default: FakeProfileRepository. Override usado pelos testes. */
+  profileRepository?: ProfileRepository;
   children: ReactNode;
 }
 
@@ -24,16 +32,27 @@ interface AppProvidersProps {
  * para não perder estado em Fast Refresh e para permitir que cada teste
  * monte sua própria instância isolada.
  */
-export function AppProviders({ origin, authRepository, children }: AppProvidersProps) {
+export function AppProviders({ origin, authRepository, profileRepository, children }: AppProvidersProps) {
   const resolvedOrigin = origin ?? resolveAppOrigin();
 
-  const [store] = useState<StoreApi<SessionState>>(() =>
-    createSessionStore(authRepository ?? new FakeAuthRepository(), resolvedOrigin),
-  );
+  const [stores] = useState(() => {
+    // Sem backend: o fake de auth avisa o fake de perfil sobre novos
+    // cadastros, como a API real faria ao criar a conta.
+    const fakeProfiles = new FakeProfileRepository();
+    const auth =
+      authRepository ??
+      new FakeAuthRepository(undefined, (session, payload) => fakeProfiles.seedFromSignUp(session, payload));
+    return {
+      session: createSessionStore(auth, resolvedOrigin),
+      profile: createProfileStore(profileRepository ?? fakeProfiles),
+    };
+  });
 
   return (
     <OriginContext.Provider value={resolvedOrigin}>
-      <SessionStoreContext.Provider value={store}>{children}</SessionStoreContext.Provider>
+      <SessionStoreContext.Provider value={stores.session}>
+        <ProfileStore.Provider value={stores.profile}>{children}</ProfileStore.Provider>
+      </SessionStoreContext.Provider>
     </OriginContext.Provider>
   );
 }
@@ -62,3 +81,6 @@ export function useSessionStoreApi(): StoreApi<SessionState> {
   }
   return store;
 }
+
+export const useProfileStore = ProfileStore.useSelector;
+export const useProfileStoreApi = ProfileStore.useStoreApi;

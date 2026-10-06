@@ -1,21 +1,19 @@
-import { Redirect, Slot, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders, useAppOrigin, useSessionStore } from '@/app-shell/AppProviders';
-import { AppRoutes, homeFor, pathFromSegments, publicRoutesFor } from '@/app-shell/routes';
+import { isMobile } from '@/app-shell/origin';
+import { StartupProvider } from '@/app-shell/StartupContext';
 import { ThemeProvider } from '@/app-shell/theme/ThemeProvider';
 import { useAppStartup } from '@/app-shell/useAppStartup';
-import { StartupErrorView } from '@/core/ui/StartupErrorView';
-import { SplashScreen } from '@/features/splash/presentation/SplashScreen';
-import { WebLoadingScreen } from '@/features/splash/presentation/WebLoadingScreen';
 
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <AppProviders>
         <ThemeProvider>
-          <RootLayoutGate />
+          <RootNavigator />
         </ThemeProvider>
       </AppProviders>
     </GestureHandlerRootView>
@@ -23,36 +21,51 @@ export default function RootLayout() {
 }
 
 /**
- * Gate de startup + guarda de autenticação — um único ponto de decisão de
- * rota, reativo à sessão. Ninguém navega na mão fora daqui: a UI só reage
- * à sessão.
+ * Único ponto de decisão de rota, reativo ao startup e à sessão. Ninguém
+ * navega na mão para entrar/sair: a UI só muda a sessão.
+ *
+ * O layout raiz renderiza SEMPRE o mesmo navegador. Trocar o navegador por
+ * <SplashScreen>/<Redirect> (como era antes) desmonta a árvore do Expo
+ * Router ao navegar — o app reiniciava e perdia a sessão logo após o login.
+ *
+ * Cada `Stack.Protected` libera um conjunto de rotas; quando a condição
+ * muda, o router leva automaticamente para a primeira rota permitida, na
+ * ordem declarada abaixo.
  */
-function RootLayoutGate() {
+function RootNavigator() {
   const origin = useAppOrigin();
   const startup = useAppStartup(origin);
   const session = useSessionStore((s) => s.session);
-  const segments = useSegments();
 
-  if (startup.status === 'error') {
-    return <StartupErrorView onRetry={startup.retry} />;
-  }
-  if (startup.status === 'loading') {
-    return origin === 'mobile' ? <SplashScreen /> : <WebLoadingScreen />;
-  }
+  const ready = startup.status === 'ready';
+  const loggedIn = session != null;
+  const mobile = isMobile(origin);
 
-  const path = pathFromSegments(segments);
-  const home = homeFor(origin);
-  const isLoggedIn = session != null;
-  const isPublic = publicRoutesFor(origin).includes(path);
+  return (
+    <StartupProvider value={startup}>
+      <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+        {/* Splash / erro de startup (app/index.tsx). */}
+        <Stack.Protected guard={!ready}>
+          <Stack.Screen name="index" />
+        </Stack.Protected>
 
-  if (!isLoggedIn && !isPublic) {
-    return <Redirect href={AppRoutes.login} />;
-  }
-  if (isLoggedIn && (isPublic || path === '/')) {
-    return <Redirect href={home} />;
-  }
+        <Stack.Protected guard={ready && !loggedIn}>
+          <Stack.Screen name="login" />
+        </Stack.Protected>
+        {/* O painel web (admin) não tem cadastro aberto. */}
+        <Stack.Protected guard={ready && !loggedIn && mobile}>
+          <Stack.Screen name="cadastro" options={{ animation: 'slide_from_right' }} />
+        </Stack.Protected>
 
-  return <Slot />;
+        <Stack.Protected guard={ready && loggedIn && mobile}>
+          <Stack.Screen name="(app)" />
+        </Stack.Protected>
+        <Stack.Protected guard={ready && loggedIn && !mobile}>
+          <Stack.Screen name="painel" />
+        </Stack.Protected>
+      </Stack>
+    </StartupProvider>
+  );
 }
 
 const styles = StyleSheet.create({

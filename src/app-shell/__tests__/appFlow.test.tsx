@@ -1,4 +1,4 @@
-import { act, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { Dimensions } from 'react-native';
 
 /**
@@ -7,15 +7,10 @@ import { Dimensions } from 'react-native';
  * que app/_layout.tsx monta sua própria <AppProviders> sem aceitar override
  * externo.
  *
- * O cenário "login bem-sucedido → home → logout" não está coberto aqui:
- * rastreado com logs, confirmamos que a navegação disparada pelo <Redirect>
- * pós-login remonta app/_layout.tsx sob expo-router/testing-library + o
- * test-renderer atual (React 19), reiniciando useAppStartup e descartando a
- * sessão em memória — uma limitação da combinação de bibliotecas de teste
- * (ainda muito recentes para React 19), não do código da app. Esse fluxo de
- * login já é coberto em outro nível por LoginForm.test.tsx
- * (submit/validação/erro) e sessionStore.test.ts (transições de estado); só
- * a integração completa com o router fica sem teste automatizado por ora.
+ * O layout raiz renderiza sempre o mesmo <Stack> (com Stack.Protected).
+ * Antes ele trocava o navegador por <Redirect>/<SplashScreen>, o que
+ * remontava app/_layout.tsx logo após o login: o app voltava à splash e
+ * perdia a sessão em memória. O teste "login leva às abas" cobre isso.
  */
 describe('inicialização do app', () => {
   const originalWindowDimensions = Dimensions.get('window');
@@ -44,6 +39,38 @@ describe('inicialização do app', () => {
     );
   });
 
+  it('mobile: login leva às abas sem reiniciar o app, e logout volta ao login', async () => {
+    process.env.EXPO_PUBLIC_APP_ORIGIN = 'mobile';
+
+    await renderRouter('app', { initialUrl: '/' });
+    await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
+
+    await fireEvent.changeText(screen.getByTestId('login-email'), 'ana@email.com');
+    await fireEvent.changeText(screen.getByTestId('login-password'), '123456');
+    await fireEvent.press(screen.getByTestId('login-submit'));
+
+    // Chega ao feed (aba inicial) com a barra de abas — e não volta ao login.
+    await waitFor(() => expect(screen.getByText('Perfil')).toBeTruthy(), { timeout: 4000 });
+    expect(screen.queryByTestId('login-email')).toBeNull();
+
+    await fireEvent.press(screen.getByTestId('logout-button'));
+    await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
+  });
+
+  it('web: login leva ao painel sem reiniciar o app', async () => {
+    process.env.EXPO_PUBLIC_APP_ORIGIN = 'web';
+
+    await renderRouter('app', { initialUrl: '/' });
+    await waitFor(() => expect(screen.getByTestId('login-email')).toBeTruthy(), { timeout: 3000 });
+
+    await fireEvent.changeText(screen.getByTestId('login-email'), 'admin@linker.com');
+    await fireEvent.changeText(screen.getByTestId('login-password'), '123456');
+    await fireEvent.press(screen.getByTestId('login-submit'));
+
+    await waitFor(() => expect(screen.getByTestId('logout-button')).toBeTruthy(), { timeout: 4000 });
+    expect(screen.queryByTestId('login-email')).toBeNull();
+  });
+
   it('web: vai direto para o login, sem splash de marca', async () => {
     process.env.EXPO_PUBLIC_APP_ORIGIN = 'web';
     Dimensions.set({
@@ -53,8 +80,11 @@ describe('inicialização do app', () => {
 
     await renderRouter('app', { initialUrl: '/' });
 
-    await waitFor(() => {
-      expect(screen.getByText('Painel administrativo')).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('Painel administrativo')).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
   });
 });

@@ -28,7 +28,14 @@ export class FakeAuthRepository implements AuthRepository {
   private session: Session | null = null;
   private readonly accounts = new Map<string, { password: string; name: string; role: UserRole }>();
 
-  constructor(private readonly latencyMs: number = 900) {}
+  /**
+   * @param onSignUp chamado após um cadastro bem-sucedido — o "backend"
+   * fake usa para criar o perfil com os dados informados.
+   */
+  constructor(
+    private readonly latencyMs: number = 900,
+    private readonly onSignUp?: (session: Session, payload: SignUpPayload) => void,
+  ) {}
 
   async signIn(params: { email: string; password: string; origin: AppOrigin }): Promise<Result<Session>> {
     await delay(this.latencyMs);
@@ -67,7 +74,9 @@ export class FakeAuthRepository implements AuthRepository {
 
     const name = payload.role === 'candidato' ? payload.nomeCompleto : payload.nomeEmpresa;
     this.accounts.set(email, { password: payload.senha, name, role: payload.role });
-    return ok(this.startSession(email, name, payload.role, params.origin));
+    const session = this.startSession(email, name, payload.role, params.origin);
+    this.onSignUp?.(session, { ...payload, email });
+    return ok(session);
   }
 
   async restoreSession(): Promise<Session | null> {

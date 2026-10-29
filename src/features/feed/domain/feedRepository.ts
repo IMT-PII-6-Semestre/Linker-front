@@ -8,9 +8,19 @@ export interface FeedRepository {
   /**
    * Posts ainda não avaliados por este usuário: vagas para candidato,
    * currículos para empresa. Já filtrados por palavra-chave e região.
+   * Empresa: candidatos para `filters.vagaId` — quem foi avaliado para uma
+   * vaga continua aparecendo para as outras.
    */
   list(params: { session: Session; filters: FeedFilters }): Promise<Result<FeedPost[]>>;
 
-  /** Registra match/passar. Match só acontece se o outro lado também curtiu. */
-  swipe(params: { session: Session; post: FeedPost; direction: SwipeDirection }): Promise<Result<SwipeResult>>;
+  /**
+   * Registra match/passar. Match só acontece se o outro lado também curtiu.
+   * `vagaId`: vaga em nome da qual a empresa avaliou o candidato (null para candidato).
+   */
+  swipe(params: {
+    session: Session;
+    post: FeedPost;
+    direction: SwipeDirection;
+    vagaId: string | null;
+  }): Promise<Result<SwipeResult>>;
 }

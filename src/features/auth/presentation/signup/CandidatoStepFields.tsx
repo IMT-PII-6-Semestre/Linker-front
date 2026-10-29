@@ -1,7 +1,7 @@
 import { ChipMultiSelect, ChipSelect } from '@/core/ui/ChipSelect';
 import { TagInput } from '@/core/ui/TagInput';
 import { TextField } from '@/core/ui/TextField';
-import { maskCep, maskCpf, maskDate, maskPhone } from '@/core/format/masks';
+import { maskCep, maskCpf, maskDate, maskPhone, maskYears } from '@/core/format/masks';
 
 import {
   ESCOLARIDADES,
@@ -158,6 +158,17 @@ export function CandidatoStepFields({ step, draft, errors, onChange, onSubmit }:
             autoCapitalize="sentences"
             multiline
             maxLength={1000}
+          />
+          <TextField
+            testID="signup-anos-experiencia"
+            label="Anos de experiência"
+            placeholder="0"
+            helperText="Some o tempo em empregos e estágios. Primeiro emprego? Coloque 0."
+            value={draft.anosExperiencia}
+            onChangeText={(v) => onChange({ anosExperiencia: v })}
+            mask={maskYears}
+            keyboardType="number-pad"
+            errorText={errors.anosExperiencia}
           />
         </>
       );

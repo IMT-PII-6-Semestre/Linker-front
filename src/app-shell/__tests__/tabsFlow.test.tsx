@@ -67,7 +67,7 @@ describe('abas do app', () => {
   it('empresa: aba do feed se chama Talentos e o perfil lista vagas', async () => {
     await renderTabsAs('rh@empresa.com', '/perfil');
 
-    expect(await screen.findByText('Vagas abertas (1)', {}, { timeout: 3000 })).toBeTruthy();
+    expect(await screen.findByText('Vagas abertas (2)', {}, { timeout: 3000 })).toBeTruthy();
     expect(screen.getByText('Talentos')).toBeTruthy();
   });
 

@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProviders, useSessionStore } from '@/app-shell/AppProviders';
 import { ThemeProvider } from '@/app-shell/theme/ThemeProvider';
 import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
+import { FakeProfileRepository } from '@/features/profile/data/fakeProfileRepository';
 
 import { FakeFeedRepository } from '../../data/fakeFeedRepository';
 import { FeedScreen } from '../FeedScreen';
@@ -32,6 +33,7 @@ function renderFeed(email = 'ana@email.com') {
         origin="mobile"
         authRepository={new FakeAuthRepository(0)}
         feedRepository={new FakeFeedRepository(0)}
+        profileRepository={new FakeProfileRepository(0)}
       >
         <ThemeProvider>
           <SignedIn email={email} />
@@ -82,6 +84,19 @@ describe('FeedScreen', () => {
 
     expect(within(await screen.findByTestId('feed-top-card')).getByText('Alexandre Silva')).toBeTruthy();
     expect(screen.getByText('Talentos')).toBeTruthy();
+  });
+
+  it('empresa avalia por vaga: a primeira vem escolhida e trocar de vaga traz quem já foi avaliado na outra', async () => {
+    await renderFeed('rh@empresa.com');
+    await screen.findByTestId('feed-top-card');
+    expect(screen.getByTestId('feed-vaga-vaga-demo-1').props.accessibilityState).toEqual({ selected: true });
+
+    await fireEvent.press(screen.getByTestId('feed-pass'));
+    await waitFor(() => expect(within(topCard()).getByText('Beatriz Costa')).toBeTruthy());
+
+    await fireEvent.press(screen.getByTestId('feed-vaga-vaga-demo-2'));
+    await waitFor(() => expect(within(topCard()).getByText('Alexandre Silva')).toBeTruthy());
+    expect(screen.getByTestId('feed-vaga-vaga-demo-2').props.accessibilityState).toEqual({ selected: true });
   });
 
   it('busca por palavra-chave (com espera de digitação) e limpar filtros', async () => {

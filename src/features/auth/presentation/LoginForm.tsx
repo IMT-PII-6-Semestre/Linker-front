@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Keyboard, StyleSheet, TextInput, View } from 'react-native';
+import { Keyboard, StyleSheet, View, type TextInputInstance } from 'react-native';
 import { useStore } from 'zustand';
 
 import { useSessionStore } from '@/app-shell/AppProviders';
@@ -34,7 +34,7 @@ export function LoginForm({ submitLabel = 'Entrar' }: LoginFormProps) {
   const [password, setPassword] = useState('');
   const [obscurePassword, setObscurePassword] = useState(true);
   const [touched, setTouched] = useState(false);
-  const passwordInputRef = useRef<TextInput>(null);
+  const passwordInputRef = useRef<TextInputInstance>(null);
 
   const emailError = touched ? validateEmail(email) : null;
   const passwordError = touched ? validatePassword(password) : null;

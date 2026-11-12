@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders, useAppOrigin, useSessionStore } from '@/app-shell/AppProviders';
 import { isMobile } from '@/app-shell/origin';
+import { AppRoutes, homeFor } from '@/app-shell/routes';
 import { StartupProvider } from '@/app-shell/StartupContext';
 import { ThemeProvider } from '@/app-shell/theme/ThemeProvider';
 import { useAppStartup } from '@/app-shell/useAppStartup';
@@ -42,20 +43,28 @@ function RootNavigator() {
   const mobile = isMobile(origin);
   // Admin só usa o painel web: no app ele não vê feed/chat/perfil.
   const admin = session?.role === 'admin';
+  // Destino ao sair de uma rota pré-login já logado. Sem isso, o Expo Router 58
+  // redireciona para a primeira rota liberada, o grupo "(app)", que vira a URL
+  // "/(app)" e cai no 404. Deslogado, fica o padrão (vai para o login).
+  const home = !loggedIn
+    ? undefined
+    : mobile && admin
+      ? AppRoutes.somenteWeb
+      : homeFor(origin);
 
   return (
     <StartupProvider value={startup}>
       <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
         {/* Splash / erro de startup (app/index.tsx). */}
-        <Stack.Protected guard={!ready}>
+        <Stack.Protected guard={!ready} redirectTo={home}>
           <Stack.Screen name="index" />
         </Stack.Protected>
 
-        <Stack.Protected guard={ready && !loggedIn}>
+        <Stack.Protected guard={ready && !loggedIn} redirectTo={home}>
           <Stack.Screen name="login" />
         </Stack.Protected>
         {/* O painel web (admin) não tem cadastro aberto. */}
-        <Stack.Protected guard={ready && !loggedIn && mobile}>
+        <Stack.Protected guard={ready && !loggedIn && mobile} redirectTo={home}>
           <Stack.Screen name="cadastro" options={{ animation: 'slide_from_right' }} />
         </Stack.Protected>
 

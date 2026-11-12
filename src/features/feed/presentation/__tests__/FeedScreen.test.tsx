@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react-native';
 import { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppProviders, useSessionStore } from '@/app-shell/AppProviders';
@@ -28,18 +29,20 @@ function SignedIn({ email }: { email: string }) {
 
 function renderFeed(email = 'ana@email.com') {
   return render(
-    <SafeAreaProvider initialMetrics={metrics}>
-      <AppProviders
-        origin="mobile"
-        authRepository={new FakeAuthRepository(0)}
-        feedRepository={new FakeFeedRepository(0)}
-        profileRepository={new FakeProfileRepository(0)}
-      >
-        <ThemeProvider>
-          <SignedIn email={email} />
-        </ThemeProvider>
-      </AppProviders>
-    </SafeAreaProvider>,
+    <GestureHandlerRootView>
+      <SafeAreaProvider initialMetrics={metrics}>
+        <AppProviders
+          origin="mobile"
+          authRepository={new FakeAuthRepository(0)}
+          feedRepository={new FakeFeedRepository(0)}
+          profileRepository={new FakeProfileRepository(0)}
+        >
+          <ThemeProvider>
+            <SignedIn email={email} />
+          </ThemeProvider>
+        </AppProviders>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>,
   );
 }
 

@@ -9,6 +9,19 @@ import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
  * Navegação inferior do app mobile (Perfil · Vagas/Talentos · Chat), como
  * no protótipo. O feed é a aba inicial.
  */
+// O Expo Router 58 tirou `initialRouteName` das props do <Tabs>.
+export const unstable_settings = {
+  initialRouteName: 'feed',
+};
+
+// O Router 58 tipa a cor do ícone como ColorValue genérico, mas ela é sempre o
+// tabBar*TintColor que passamos abaixo (strings do tema).
+function tabIcon(name: keyof typeof MaterialIcons.glyphMap) {
+  return function TabIcon({ color, size }: { color: unknown; size: number }) {
+    return <MaterialIcons name={name} color={color as string} size={size} />;
+  };
+}
+
 export default function AppTabsLayout() {
   const colors = useAppTheme();
   const role = useSessionStore((s) => s.session?.role);
@@ -19,7 +32,6 @@ export default function AppTabsLayout() {
 
   return (
     <Tabs
-      initialRouteName="feed"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
@@ -40,23 +52,21 @@ export default function AppTabsLayout() {
         name="perfil"
         options={{
           title: 'Perfil',
-          tabBarIcon: ({ color, size }) => <MaterialIcons name="person" color={color} size={size} />,
+          tabBarIcon: tabIcon('person'),
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
           title: role === 'empresa' ? 'Talentos' : 'Vagas',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="local-fire-department" color={color} size={size} />
-          ),
+          tabBarIcon: tabIcon('local-fire-department'),
         }}
       />
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color, size }) => <MaterialIcons name="chat-bubble" color={color} size={size} />,
+          tabBarIcon: tabIcon('chat-bubble'),
         }}
       />
     </Tabs>

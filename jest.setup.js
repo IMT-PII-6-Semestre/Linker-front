@@ -1,6 +1,13 @@
 /* global jest */
-// Reanimated 4 / Worklets / Gesture Handler dependem de módulos nativos:
-// nos testes usamos os mocks oficiais de cada lib.
+// Gesture Handler depende de módulo nativo: usamos o mock oficial.
+// Reanimated 4.7 / Worklets rodam a implementação web (resolver no jest.config.js).
 require('react-native-gesture-handler/jestSetup');
-jest.mock('react-native-worklets', () => require('react-native-worklets/lib/module/mock'));
-jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
+require('react-native-reanimated').setUpTests();
+
+// Com o Worklets web, o Gesture Handler nativo quebra ao pedir o runtime da UI
+// (`getUIRuntimeHolder` não existe no web): usamos o no-op da versão web dele.
+for (const dir of ['src', 'lib/module']) {
+  jest.mock(`react-native-gesture-handler/${dir}/handlers/gestures/installUIRuntimeBindings`, () => ({
+    installUIRuntimeBindings: () => {},
+  }));
+}

@@ -3,6 +3,7 @@ import {
   emptyEmpresaDraft,
   parseBrDate,
   toCandidatoSignUp,
+  toVagaInfo,
   type CandidatoDraft,
   type CandidatoSignUp,
   type EmpresaDraft,
@@ -51,7 +52,7 @@ export function candidatoAge(profile: CandidatoProfile, today: Date = new Date()
 
 export function candidatoToDraft(profile: CandidatoProfile): CandidatoDraft {
   const { role: _role, userId: _userId, fotoUri: _fotoUri, ...fields } = profile;
-  return { ...fields, senha: '', confirmacaoSenha: '' };
+  return { ...fields, anosExperiencia: String(fields.anosExperiencia), senha: '', confirmacaoSenha: '' };
 }
 
 /** Aplica um rascunho já validado ao perfil, preservando id e foto. */
@@ -75,6 +76,10 @@ export function empresaToDraft(profile: EmpresaProfile, vaga?: Vaga): EmpresaDra
           descricao: vaga.descricao,
           beneficios: vaga.beneficios,
           horario: vaga.horario,
+          cep: vaga.cep,
+          skillsObrigatorias: vaga.skillsObrigatorias,
+          skillsDesejaveis: vaga.skillsDesejaveis,
+          experienciaMinima: String(vaga.experienciaMinima),
           escolaridade: vaga.escolaridade,
           tipoContrato: vaga.tipoContrato,
           faixaSalarial: vaga.faixaSalarial,
@@ -99,20 +104,7 @@ export function applyEmpresaDraft(profile: EmpresaProfile, draft: EmpresaDraft):
 
 /** Monta a vaga a partir de um rascunho validado (etapas "A vaga" + "Requisitos"). */
 export function draftToVaga(draft: EmpresaDraft, id: string): Vaga {
-  if (!draft.escolaridade || !draft.tipoContrato || !draft.faixaSalarial || !draft.modalidade) {
-    throw new Error('draftToVaga: rascunho não validado');
-  }
-  return {
-    id,
-    cargo: draft.cargo.trim(),
-    descricao: draft.descricao.trim(),
-    beneficios: draft.beneficios.trim(),
-    horario: draft.horario.trim(),
-    escolaridade: draft.escolaridade,
-    tipoContrato: draft.tipoContrato,
-    faixaSalarial: draft.faixaSalarial,
-    modalidade: draft.modalidade,
-  };
+  return { id, ...toVagaInfo(draft) };
 }
 
 /** Insere a vaga nova ou substitui a de mesmo id. */

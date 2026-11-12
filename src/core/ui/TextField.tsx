@@ -8,6 +8,7 @@ import {
   View,
   type KeyboardTypeOptions,
   type ReturnKeyTypeOptions,
+  type TextInputInstance,
   type TextInputProps,
 } from 'react-native';
 
@@ -48,7 +49,7 @@ interface TextFieldProps {
 }
 
 /** Campo de texto com rótulo, ícones e erro inline, no visual do protótipo. */
-export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
+export const TextField = forwardRef<TextInputInstance, TextFieldProps>(function TextField(
   {
     label,
     value,

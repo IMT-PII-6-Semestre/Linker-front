@@ -34,3 +34,6 @@ export const maskDate: Mask = (v) => applyPattern(v, '##/##/####');
 /** Fixo (10 dígitos) ou celular (11 dígitos). */
 export const maskPhone: Mask = (v) =>
   onlyDigits(v).length > 10 ? applyPattern(v, '(##) #####-####') : applyPattern(v, '(##) ####-####');
+
+/** Anos inteiros (até 2 dígitos). */
+export const maskYears: Mask = (v) => onlyDigits(v).slice(0, 2);

@@ -71,11 +71,12 @@ describe('ProfileScreen', () => {
 
   it('empresa: remove uma vaga após confirmar', async () => {
     await renderProfile('rh@minhaempresa.com');
-    await waitFor(() => expect(screen.getByText('Vagas abertas (1)')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Vagas abertas (2)')).toBeTruthy());
 
-    await fireEvent.press(screen.getByLabelText('Remover'));
+    await fireEvent.press(within(screen.getByTestId('vaga-vaga-demo-1')).getByLabelText('Remover'));
     await fireEvent.press(await screen.findByTestId('confirm-dialog-confirm'));
 
-    await waitFor(() => expect(screen.getByText('Vagas abertas (0)')).toBeTruthy());
+    await waitFor(() => expect(screen.getByText('Vagas abertas (1)')).toBeTruthy());
+    expect(screen.queryByTestId('vaga-vaga-demo-1')).toBeNull();
   });
 });

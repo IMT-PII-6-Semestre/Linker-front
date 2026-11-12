@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { TextInput } from 'react-native';
+import type { TextInputInstance } from 'react-native';
 
 import { TextField } from '@/core/ui/TextField';
 
@@ -16,7 +16,7 @@ interface PasswordFieldsProps {
 /** Última etapa dos dois fluxos: senha + confirmação, com "mostrar senha". */
 export function PasswordFields({ senha, confirmacaoSenha, errors, onChange, onSubmit }: PasswordFieldsProps) {
   const [hidden, setHidden] = useState(true);
-  const confirmRef = useRef<TextInput>(null);
+  const confirmRef = useRef<TextInputInstance>(null);
 
   return (
     <>

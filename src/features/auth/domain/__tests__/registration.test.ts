@@ -12,6 +12,7 @@ import {
   validateFullName,
   validateMobilePhone,
   validatePasswordConfirmation,
+  validateYears,
 } from '../registration';
 
 const today = new Date(2026, 9, 6);
@@ -56,6 +57,14 @@ describe('validadores de cadastro', () => {
     expect(validateFoundationDate('01/01/2030', today)).toMatch(/futuro/);
   });
 
+  it('anos de experiência: inteiro de 0 a 60', () => {
+    expect(validateYears('0', 'vazio')).toBeNull();
+    expect(validateYears('12', 'vazio')).toBeNull();
+    expect(validateYears('', 'vazio')).toBe('vazio');
+    expect(validateYears('61', 'vazio')).toMatch(/entre 0 e 60/);
+    expect(validateYears('2,5', 'vazio')).toMatch(/entre 0 e 60/);
+  });
+
   it('confirmação de senha', () => {
     expect(validatePasswordConfirmation('123456', '123456')).toBeNull();
     expect(validatePasswordConfirmation('123456', '654321')).toBe('As senhas não conferem.');
@@ -68,6 +77,14 @@ describe('etapas do wizard', () => {
     expect(Object.keys(errors).sort()).toEqual(
       ['celular', 'cpf', 'dataNascimento', 'email', 'nomeCompleto'].sort(),
     );
+  });
+
+  it('vaga exige CEP, skill obrigatória e experiência mínima; desejáveis são opcionais', () => {
+    expect(Object.keys(EMPRESA_STEPS[1].validate(emptyEmpresaDraft))).toContain('cep');
+    const requisitos = EMPRESA_STEPS[2].validate(emptyEmpresaDraft);
+    expect(requisitos.skillsObrigatorias).toBeDefined();
+    expect(requisitos.experienciaMinima).toBeDefined();
+    expect(requisitos.skillsDesejaveis).toBeUndefined();
   });
 
   it('listas vazias e opções não escolhidas contam como erro', () => {
@@ -84,6 +101,9 @@ describe('etapas do wizard', () => {
       nomeEmpresa: ' TechNova ',
       email: 'RH@TechNova.com ',
       cargo: 'Dev',
+      cep: '01310-100',
+      skillsObrigatorias: ['React'],
+      experienciaMinima: '2',
       escolaridade: 'Médio',
       tipoContrato: 'CLT',
       modalidade: 'Remoto',
@@ -93,6 +113,8 @@ describe('etapas do wizard', () => {
     expect(payload.email).toBe('rh@technova.com');
     expect(payload.nomeEmpresa).toBe('TechNova');
     expect(payload.vaga.modalidade).toBe('Remoto');
+    expect(payload.vaga.experienciaMinima).toBe(2);
+    expect(payload.vaga.skillsObrigatorias).toEqual(['React']);
     expect(EMPRESA_STEPS).toHaveLength(4);
   });
 });

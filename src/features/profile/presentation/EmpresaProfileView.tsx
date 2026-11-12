@@ -8,7 +8,7 @@ import { Button } from '@/core/ui/Button';
 import { Card } from '@/core/ui/Card';
 import { ConfirmDialog } from '@/core/ui/ConfirmDialog';
 import { Tag, TagList } from '@/core/ui/Tag';
-import { EMPRESA_STEPS, type EmpresaDraft } from '@/features/auth/domain/registration';
+import { EMPRESA_STEPS, formatYears, type EmpresaDraft } from '@/features/auth/domain/registration';
 import { EmpresaStepFields } from '@/features/auth/presentation/signup/EmpresaStepFields';
 
 import {
@@ -152,6 +152,12 @@ function VagaCard({ vaga, onEdit, onRemove }: { vaga: Vaga; onEdit: () => void; 
         {vaga.descricao}
       </AppText>
       <InfoRow label="Horário" value={vaga.horario} />
+      <InfoRow label="CEP" value={vaga.cep} />
+      <InfoRow label="Skills obrigatórias" value={vaga.skillsObrigatorias.join(', ')} />
+      {vaga.skillsDesejaveis.length > 0 ? (
+        <InfoRow label="Skills desejáveis" value={vaga.skillsDesejaveis.join(', ')} />
+      ) : null}
+      <InfoRow label="Experiência mínima" value={formatYears(vaga.experienciaMinima)} />
       <InfoRow label="Benefícios" value={vaga.beneficios} />
       <View style={styles.vagaActions}>
         <Button label="Remover" variant="ghost" icon="delete-outline" onPress={onRemove} style={styles.flex} />

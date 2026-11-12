@@ -14,6 +14,8 @@ export const AppRoutes = {
   feed: '/feed',
   perfil: '/perfil',
   chat: '/chat',
+  /** Admin logado no app mobile: só o aviso de usar o painel web. */
+  somenteWeb: '/somente-web',
 } as const;
 
 export function homeFor(origin: AppOrigin): string {

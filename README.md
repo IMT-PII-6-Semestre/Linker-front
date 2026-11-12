@@ -2,7 +2,7 @@
 
 Rede social que une o modelo de vagas/candidatos do LinkedIn com o algoritmo de match bilateral (swipe) do Tinder — Projeto Integrador Interdisciplinar (PII), 3º ano de Ciência da Computação.
 
-Expo (SDK 57) + React Native + TypeScript + Expo Router + Zustand. Um único código-base atende duas audiências:
+Expo (SDK 58) + React Native + TypeScript + Expo Router + Zustand. Um único código-base atende duas audiências:
 
 - **mobile** — app de **candidatos e empresas**: cadastro, login, feed com swipe, perfil e chat
 - **web** — **painel administrativo** (métricas da plataforma), só para contas `admin`
@@ -91,7 +91,7 @@ src/
 ## Scripts
 
 ```bash
-npm test          # jest + @testing-library/react-native (115 testes)
+npm test          # jest + @testing-library/react-native (119 testes)
 npm run lint      # eslint
 npm run typecheck # tsc --noEmit
 npx expo export --platform web      # empacota com o Metro (pega erro de bundle sem abrir o app)

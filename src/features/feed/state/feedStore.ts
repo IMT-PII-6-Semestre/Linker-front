@@ -31,7 +31,8 @@ export interface FeedState {
   match: FeedMatch | null;
   loadedFor: string | null;
 
-  load: (session: Session, options?: { force?: boolean }) => Promise<void>;
+  /** `vagaId` (empresa): troca a vaga avaliada e recarrega. */
+  load: (session: Session, options?: { force?: boolean; vagaId?: string }) => Promise<void>;
   setFilters: (session: Session, patch: Partial<FeedFilters>) => Promise<void>;
   swipe: (session: Session, direction: SwipeDirection) => Promise<void>;
   dismissMatch: () => void;
@@ -63,8 +64,11 @@ export function createFeedStore(repository: FeedRepository): StoreApi<FeedState>
 
       load: async (session, options) => {
         const sameUser = get().loadedFor === session.userId;
-        if (sameUser && !options?.force && get().status !== 'error') return;
         if (!sameUser) set({ filters: emptyFilters, posts: [], match: null, swipeFailure: null });
+        const vagaId = options?.vagaId ?? get().filters.vagaId;
+        const sameVaga = vagaId === get().filters.vagaId;
+        if (sameUser && sameVaga && !options?.force && get().status !== 'error') return;
+        if (!sameVaga) set({ filters: { ...get().filters, vagaId }, posts: [], swipeFailure: null });
         await fetch(session);
       },
 
@@ -78,7 +82,7 @@ export function createFeedStore(repository: FeedRepository): StoreApi<FeedState>
         if (!post) return;
         set({ posts: rest, swipeFailure: null });
 
-        const result = await repository.swipe({ session, post, direction });
+        const result = await repository.swipe({ session, post, direction, vagaId: get().filters.vagaId });
         if (result.kind === 'err') {
           set({ posts: [post, ...get().posts], swipeFailure: result.failure });
           return;

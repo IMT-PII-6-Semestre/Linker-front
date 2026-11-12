@@ -10,6 +10,7 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  type ScrollViewInstance,
 } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -51,7 +52,7 @@ export function SignUpScreen() {
   const { chooseRole, updateCandidato, updateEmpresa, next, back } = store.getState();
 
   const [selectedRole, setSelectedRole] = useState<SignUpRole | null>(null);
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ScrollViewInstance>(null);
 
   const steps = role ? stepsFor(role) : null;
   const isLastStep = steps != null && step === steps.length - 1;

@@ -15,6 +15,7 @@ const validCandidato: CandidatoDraft = {
   formacao: 'ADS — Fatec',
   cep: '01310-100',
   experiencias: '3 anos com React',
+  anosExperiencia: '3',
   tiposContrato: ['CLT'],
   modalidades: ['Híbrido'],
   faixaSalarial: 'R$ 6 a 10 mil',

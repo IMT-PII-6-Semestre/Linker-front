@@ -24,7 +24,7 @@ describe('feedStore', () => {
     expect(forCandidato.getState().posts.every((p) => p.kind === 'vaga')).toBe(true);
 
     const forEmpresa = createFeedStore(repo);
-    await forEmpresa.getState().load(empresa);
+    await forEmpresa.getState().load(empresa, { vagaId: 'v1' });
     expect(forEmpresa.getState().posts).toHaveLength(CANDIDATOS_SEED.length);
     expect(forEmpresa.getState().posts.every((p) => p.kind === 'candidato')).toBe(true);
   });
@@ -85,9 +85,29 @@ describe('feedStore', () => {
     await store.getState().load(candidato);
     await store.getState().setFilters(candidato, { uf: 'SP' });
 
-    await store.getState().load(empresa);
+    await store.getState().load(empresa, { vagaId: 'v1' });
 
-    expect(store.getState().filters).toEqual({ query: '', uf: null });
+    expect(store.getState().filters).toEqual({ query: '', uf: null, vagaId: 'v1' });
     expect(store.getState().posts[0].kind).toBe('candidato');
+  });
+
+  it('empresa: swipe vale para a vaga escolhida; nas outras vagas o candidato continua', async () => {
+    const repo = new FakeFeedRepository(0);
+    const swipeSpy = jest.spyOn(repo, 'swipe');
+    const store = createFeedStore(repo);
+
+    await store.getState().load(empresa);
+    expect(store.getState().posts).toEqual([]); // sem vaga escolhida, nada
+
+    await store.getState().load(empresa, { vagaId: 'v1' });
+    const top = store.getState().posts[0];
+    await store.getState().swipe(empresa, 'pass');
+    expect(swipeSpy).toHaveBeenCalledWith(expect.objectContaining({ post: top, vagaId: 'v1' }));
+
+    await store.getState().load(empresa, { vagaId: 'v2' });
+    expect(store.getState().posts[0].id).toBe(top.id);
+
+    await store.getState().load(empresa, { vagaId: 'v1' });
+    expect(store.getState().posts.some((p) => p.id === top.id)).toBe(false);
   });
 });

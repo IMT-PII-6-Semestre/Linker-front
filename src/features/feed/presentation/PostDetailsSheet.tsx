@@ -6,6 +6,7 @@ import { AppText } from '@/core/ui/AppText';
 import { Button } from '@/core/ui/Button';
 import { SheetModal } from '@/core/ui/SheetModal';
 import { Tag, TagList } from '@/core/ui/Tag';
+import { formatYears } from '@/features/auth/domain/registration';
 
 import {
   postTitle,
@@ -83,6 +84,17 @@ function VagaDetails({ post }: { post: VagaPost }) {
       <Section title="Sobre a vaga">
         <AppText color="onSurfaceVariant">{vaga.descricao}</AppText>
       </Section>
+      <Section title="O que pedem">
+        <TagList>
+          {vaga.skillsObrigatorias.map((s) => (
+            <Tag key={s} label={s} />
+          ))}
+          {vaga.skillsDesejaveis.map((s) => (
+            <Tag key={s} tone="neutral" label={`${s} (desejável)`} />
+          ))}
+        </TagList>
+        <AppText color="onSurfaceVariant">Experiência mínima: {formatYears(vaga.experienciaMinima)}</AppText>
+      </Section>
       <Section title="Horário">
         <AppText color="onSurfaceVariant">{vaga.horario}</AppText>
       </Section>
@@ -99,6 +111,7 @@ function CandidatoDetails({ post }: { post: CandidatoPost }) {
       <AppText variant="bodyStrong" color="primary">
         {post.cargoDesejado} • {post.local} • {post.idade} anos
       </AppText>
+      <AppText color="onSurfaceVariant">Experiência: {formatYears(post.anosExperiencia)}</AppText>
       <Section title="Experiências">
         <AppText color="onSurfaceVariant">{post.experiencias}</AppText>
       </Section>

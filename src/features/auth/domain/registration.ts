@@ -56,6 +56,8 @@ export interface CandidatoSignUp {
   cep: string;
   tiposContrato: TipoContrato[];
   experiencias: string;
+  /** Anos de experiência na área (0 = primeiro emprego). */
+  anosExperiencia: number;
   faixaSalarial: FaixaSalarial;
   hardSkills: string[];
   softSkills: string[];
@@ -68,6 +70,13 @@ export interface VagaInfo {
   descricao: string;
   beneficios: string;
   horario: string;
+  /** CEP do local de trabalho — base da distância no feed. */
+  cep: string;
+  /** Comparadas com as skills do candidato; obrigatórias pesam mais. */
+  skillsObrigatorias: string[];
+  skillsDesejaveis: string[];
+  /** Anos de experiência mínimos (0 = aceita primeiro emprego). */
+  experienciaMinima: number;
   escolaridade: Escolaridade;
   tipoContrato: TipoContrato;
   faixaSalarial: FaixaSalarial;
@@ -105,6 +114,7 @@ export interface CandidatoDraft {
   cep: string;
   tiposContrato: TipoContrato[];
   experiencias: string;
+  anosExperiencia: string;
   faixaSalarial: FaixaSalarial | null;
   hardSkills: string[];
   softSkills: string[];
@@ -124,6 +134,10 @@ export interface EmpresaDraft {
   descricao: string;
   beneficios: string;
   horario: string;
+  cep: string;
+  skillsObrigatorias: string[];
+  skillsDesejaveis: string[];
+  experienciaMinima: string;
   escolaridade: Escolaridade | null;
   tipoContrato: TipoContrato | null;
   faixaSalarial: FaixaSalarial | null;
@@ -144,6 +158,7 @@ export const emptyCandidatoDraft: CandidatoDraft = {
   cep: '',
   tiposContrato: [],
   experiencias: '',
+  anosExperiencia: '',
   faixaSalarial: null,
   hardSkills: [],
   softSkills: [],
@@ -163,6 +178,10 @@ export const emptyEmpresaDraft: EmpresaDraft = {
   descricao: '',
   beneficios: '',
   horario: '',
+  cep: '',
+  skillsObrigatorias: [],
+  skillsDesejaveis: [],
+  experienciaMinima: '',
   escolaridade: null,
   tipoContrato: null,
   faixaSalarial: null,
@@ -227,6 +246,20 @@ export function validateCep(value: string): string | null {
   const digits = onlyDigits(value);
   if (digits.length === 0) return 'Informe o CEP.';
   return digits.length === 8 ? null : 'CEP deve ter 8 dígitos.';
+}
+
+/** Anos inteiros de 0 a 60, digitados como texto. */
+export function validateYears(value: string, emptyMessage: string): string | null {
+  const digits = value.trim();
+  if (digits.length === 0) return emptyMessage;
+  if (!/^\d+$/.test(digits) || Number(digits) > 60) return 'Informe um número de anos entre 0 e 60.';
+  return null;
+}
+
+/** 0 → "nenhuma", 1 → "1 ano", n → "n anos". */
+export function formatYears(years: number): string {
+  if (years === 0) return 'nenhuma';
+  return years === 1 ? '1 ano' : `${years} anos`;
 }
 
 export function validateMobilePhone(value: string): string | null {
@@ -333,6 +366,7 @@ export const CANDIDATO_STEPS: WizardStep<CandidatoDraft>[] = [
         ['formacao', required('Conte sua formação (curso e instituição).')(d.formacao)],
         ['cep', validateCep(d.cep)],
         ['experiencias', required('Descreva suas experiências (ou "primeiro emprego").')(d.experiencias)],
+        ['anosExperiencia', validateYears(d.anosExperiencia, 'Informe seus anos de experiência (0 se for o primeiro).')],
       ]),
   },
   {
@@ -388,6 +422,7 @@ export const EMPRESA_STEPS: WizardStep<EmpresaDraft>[] = [
         ['descricao', required('Descreva a vaga.')(d.descricao)],
         ['beneficios', required('Liste os benefícios (ou "a combinar").')(d.beneficios)],
         ['horario', required('Informe o horário de trabalho.')(d.horario)],
+        ['cep', validateCep(d.cep)],
       ]),
   },
   {
@@ -395,6 +430,8 @@ export const EMPRESA_STEPS: WizardStep<EmpresaDraft>[] = [
     subtitle: 'Usamos isso para mostrar os talentos certos no seu feed.',
     validate: (d) =>
       collect([
+        ['skillsObrigatorias', pick('Adicione ao menos uma skill obrigatória.')(d.skillsObrigatorias)],
+        ['experienciaMinima', validateYears(d.experienciaMinima, 'Informe a experiência mínima (0 se aceita iniciante).')],
         ['escolaridade', pick('Escolha a escolaridade desejada.')(d.escolaridade)],
         ['tipoContrato', pick('Escolha o tipo de contrato.')(d.tipoContrato)],
         ['modalidade', pick('Escolha a modalidade.')(d.modalidade)],
@@ -426,6 +463,7 @@ export function toCandidatoSignUp(d: CandidatoDraft): CandidatoSignUp {
     role: 'candidato',
     nomeCompleto: d.nomeCompleto.trim(),
     email: d.email.trim().toLowerCase(),
+    anosExperiencia: Number(d.anosExperiencia),
     escolaridade: d.escolaridade,
     faixaSalarial: d.faixaSalarial,
   };
@@ -444,15 +482,27 @@ export function toEmpresaSignUp(d: EmpresaDraft): EmpresaSignUp {
     telefone: d.telefone,
     email: d.email.trim().toLowerCase(),
     senha: d.senha,
-    vaga: {
-      cargo: d.cargo.trim(),
-      descricao: d.descricao.trim(),
-      beneficios: d.beneficios.trim(),
-      horario: d.horario.trim(),
-      escolaridade: d.escolaridade,
-      tipoContrato: d.tipoContrato,
-      faixaSalarial: d.faixaSalarial,
-      modalidade: d.modalidade,
-    },
+    vaga: toVagaInfo(d),
+  };
+}
+
+/** Parte "vaga" do rascunho da empresa — usada no cadastro e no CRUD de vagas. */
+export function toVagaInfo(d: EmpresaDraft): VagaInfo {
+  if (!d.escolaridade || !d.tipoContrato || !d.faixaSalarial || !d.modalidade) {
+    throw new Error('toVagaInfo: rascunho não validado');
+  }
+  return {
+    cargo: d.cargo.trim(),
+    descricao: d.descricao.trim(),
+    beneficios: d.beneficios.trim(),
+    horario: d.horario.trim(),
+    cep: d.cep,
+    skillsObrigatorias: d.skillsObrigatorias,
+    skillsDesejaveis: d.skillsDesejaveis,
+    experienciaMinima: Number(d.experienciaMinima),
+    escolaridade: d.escolaridade,
+    tipoContrato: d.tipoContrato,
+    faixaSalarial: d.faixaSalarial,
+    modalidade: d.modalidade,
   };
 }

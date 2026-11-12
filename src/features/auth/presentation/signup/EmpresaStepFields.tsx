@@ -1,10 +1,12 @@
 import { ChipSelect } from '@/core/ui/ChipSelect';
+import { TagInput } from '@/core/ui/TagInput';
 import { TextField } from '@/core/ui/TextField';
-import { maskCnpj, maskDate, maskPhone } from '@/core/format/masks';
+import { maskCep, maskCnpj, maskDate, maskPhone, maskYears } from '@/core/format/masks';
 
 import {
   ESCOLARIDADES,
   FAIXAS_SALARIAIS,
+  HARD_SKILL_SUGESTOES,
   MODALIDADES,
   TIPOS_CONTRATO,
   type EmpresaDraft,
@@ -149,12 +151,51 @@ export function EmpresaStepFields({ step, draft, errors, onChange, onSubmit }: E
             errorText={errors.horario}
             autoCapitalize="sentences"
           />
+          <TextField
+            testID="signup-vaga-cep"
+            label="CEP do local de trabalho"
+            placeholder="00000-000"
+            helperText="Usado para mostrar a vaga a quem mora perto. Vaga remota? Use o CEP da empresa."
+            value={draft.cep}
+            onChangeText={(v) => onChange({ cep: v })}
+            mask={maskCep}
+            keyboardType="number-pad"
+            errorText={errors.cep}
+            autoComplete="postal-code"
+          />
         </>
       );
 
     case 2:
       return (
         <>
+          <TagInput
+            label="Skills obrigatórias"
+            placeholder="Ex.: Excel, React, Atendimento..."
+            value={draft.skillsObrigatorias}
+            onChange={(v) => onChange({ skillsObrigatorias: v })}
+            suggestions={HARD_SKILL_SUGESTOES}
+            errorText={errors.skillsObrigatorias}
+          />
+          <TagInput
+            label="Skills desejáveis (opcional)"
+            placeholder="Diferenciais que contam pontos"
+            value={draft.skillsDesejaveis}
+            onChange={(v) => onChange({ skillsDesejaveis: v })}
+            suggestions={HARD_SKILL_SUGESTOES}
+            errorText={errors.skillsDesejaveis}
+          />
+          <TextField
+            testID="signup-experiencia-minima"
+            label="Experiência mínima (anos)"
+            placeholder="0"
+            helperText="Aceita quem está começando? Coloque 0."
+            value={draft.experienciaMinima}
+            onChangeText={(v) => onChange({ experienciaMinima: v })}
+            mask={maskYears}
+            keyboardType="number-pad"
+            errorText={errors.experienciaMinima}
+          />
           <ChipSelect
             label="Escolaridade desejada"
             options={ESCOLARIDADES}

@@ -33,6 +33,7 @@ export interface CandidatoPost {
   escolaridade: Escolaridade;
   formacao: string;
   experiencias: string;
+  anosExperiencia: number;
   hardSkills: string[];
   softSkills: string[];
   modalidades: Modalidade[];
@@ -51,9 +52,14 @@ export interface FeedFilters {
   query: string;
   /** UF, ou null para todas as regiões. */
   uf: string | null;
+  /**
+   * Empresa: vaga para a qual está avaliando talentos (o feed e o swipe são
+   * sempre de uma vaga). Candidato: sempre null.
+   */
+  vagaId: string | null;
 }
 
-export const emptyFilters: FeedFilters = { query: '', uf: null };
+export const emptyFilters: FeedFilters = { query: '', uf: null, vagaId: null };
 
 /** Regiões oferecidas no filtro. */
 export const REGIOES: { uf: string; label: string }[] = [

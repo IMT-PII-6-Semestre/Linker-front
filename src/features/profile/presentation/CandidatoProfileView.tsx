@@ -47,6 +47,7 @@ export function CandidatoProfileView({ profile, onSave }: CandidatoProfileViewPr
         <InfoRow label="Formação" value={profile.formacao} />
         <InfoRow label="Escolaridade" value={profile.escolaridade} />
         <InfoRow label="CEP" value={profile.cep} />
+        <InfoRow label="Anos de experiência" value={String(profile.anosExperiencia)} />
         <View style={styles.block}>
           <AppText variant="label" color="onSurfaceVariant">
             Experiências

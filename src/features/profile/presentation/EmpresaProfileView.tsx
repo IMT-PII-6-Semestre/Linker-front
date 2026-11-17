@@ -151,7 +151,7 @@ function VagaCard({ vaga, onEdit, onRemove }: { vaga: Vaga; onEdit: () => void; 
       <AppText color="onSurfaceVariant" numberOfLines={3}>
         {vaga.descricao}
       </AppText>
-      <InfoRow label="Horário" value={vaga.horario} />
+      <InfoRow label="Período" value={vaga.horario} />
       <InfoRow label="CEP" value={vaga.cep} />
       <InfoRow label="Skills obrigatórias" value={vaga.skillsObrigatorias.join(', ')} />
       {vaga.skillsDesejaveis.length > 0 ? (

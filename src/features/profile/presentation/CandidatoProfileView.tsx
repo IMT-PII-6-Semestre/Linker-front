@@ -43,14 +43,14 @@ export function CandidatoProfileView({ profile, onSave }: CandidatoProfileViewPr
   return (
     <View style={styles.body}>
       <SectionCard testID="section-perfil" title={SECTION_TITLES[1]} onEdit={() => setEditing(SECTION.perfil)}>
-        <InfoRow label="Vaga que procuro" value={profile.cargoDesejado} />
+        <InfoRow label="Procurando Vaga de:" value={profile.cargoDesejado} />
         <InfoRow label="Formação" value={profile.formacao} />
         <InfoRow label="Escolaridade" value={profile.escolaridade} />
         <InfoRow label="CEP" value={profile.cep} />
-        <InfoRow label="Anos de experiência" value={String(profile.anosExperiencia)} />
+        <InfoRow label="Tempo de Experiência" value={String(profile.anosExperiencia)} />
         <View style={styles.block}>
           <AppText variant="label" color="onSurfaceVariant">
-            Experiências
+            Sobre mim
           </AppText>
           <AppText color="onSurfaceVariant">{profile.experiencias}</AppText>
         </View>

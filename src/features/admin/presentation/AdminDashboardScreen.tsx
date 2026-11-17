@@ -165,22 +165,8 @@ function Dashboard({
         </Row>
       </PanelCard>
 
-      {/* KPIs */}
-      <Row columns={columns}>
-        <StatTile
-          testID="kpi-empregados"
-          icon="person"
-          label="Empregados"
-          value={formatInteger(m.candidatos)}
-          hint="Candidatos cadastrados"
-        />
-        <StatTile
-          testID="kpi-empregadores"
-          icon="business"
-          label="Empregadores"
-          value={formatInteger(m.empresas)}
-          hint="Empresas cadastradas"
-        />
+      {/* KPIs (sem Empregados e Empregadores) */}
+      <Row columns={columns >= 2 ? 2 : 1}>
         <StatTile
           testID="kpi-matches"
           icon="favorite"

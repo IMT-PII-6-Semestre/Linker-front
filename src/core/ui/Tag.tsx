@@ -1,3 +1,4 @@
+
 import { MaterialIcons } from '@expo/vector-icons';
 import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -7,23 +8,34 @@ import { useAppTheme } from '@/app-shell/theme/ThemeProvider';
 
 interface TagProps {
   label: string;
-  /** `primary`: skills (roxo claro). `neutral`: metadados (salário, modalidade). */
+  /** `primary`: skills padrão. `neutral`: fundo onSurface e conteúdo primary. */
   tone?: 'primary' | 'neutral';
   icon?: keyof typeof MaterialIcons.glyphMap;
   /** Mostra um "x" para remover (usado no TagInput). */
   onRemove?: () => void;
 }
 
-/** Pílula de informação: skills, salário, modalidade. */
 export function Tag({ label, tone = 'primary', icon, onRemove }: TagProps) {
   const colors = useAppTheme();
-  const bg = tone === 'primary' ? colors.primaryContainer : colors.surfaceVariant;
-  const fg = tone === 'primary' ? colors.onPrimaryContainer : colors.onSurface;
+
+  const bg =
+  tone === 'primary'
+    ? colors.primaryContainer
+    : `${colors.primary}30`;
+
+  const fg =
+    tone === 'primary'
+      ? colors.onPrimaryContainer
+      : colors.onSurface;
 
   return (
     <View style={[styles.tag, { backgroundColor: bg }]}>
       {icon ? <MaterialIcons name={icon} size={14} color={fg} /> : null}
-      <Text style={[styles.label, { color: fg }]}>{label}</Text>
+
+      <Text style={[styles.label, { color: fg }]}>
+        {label}
+      </Text>
+
       {onRemove ? (
         <Pressable
           accessibilityRole="button"

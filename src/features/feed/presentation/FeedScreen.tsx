@@ -108,7 +108,7 @@ export function FeedScreen() {
       edges={["top"]}
       style={[styles.safeArea, { backgroundColor: colors.surface }]}
     >
-      <ScreenHeader title={isEmpresa ? "Talentos" : "Vagas Abertas"} />
+      <ScreenHeader title={isEmpresa ? "Talentos" : "Explorar Vagas"} />
 
       {isEmpresa && !vagas?.length ? (
         <View style={[styles.flex, { backgroundColor: colors.background }]}>

@@ -59,7 +59,7 @@ export function ChatListScreen() {
 
   return (
     <SafeAreaView edges={['top']} style={[styles.safeArea, { backgroundColor: colors.surface }]}>
-      <ScreenHeader title="Mensagens" />
+      <ScreenHeader title="Chat" />
       <View style={styles.search}>
         <SearchBar
           testID="chat-search"

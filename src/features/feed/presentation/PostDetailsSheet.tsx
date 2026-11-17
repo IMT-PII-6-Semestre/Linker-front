@@ -1,3 +1,4 @@
+
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -52,17 +53,32 @@ export function PostDetailsSheet({ post, onClose, onDecide }: PostDetailsSheetPr
         ) : undefined
       }
     >
-      {post.kind === 'vaga' ? <VagaDetails post={post} /> : <CandidatoDetails post={post} />}
+      {post.kind === 'vaga' ? (
+        <VagaDetails post={post} />
+      ) : (
+        <CandidatoDetails post={post} />
+      )}
     </SheetModal>
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
   return (
     <View style={styles.section}>
-      <AppText variant="bodyStrong" accessibilityRole="header">
+      <AppText
+        variant="bodyStrong"
+        color="onSurfaceVariant"
+        accessibilityRole="header"
+      >
         {title}
       </AppText>
+
       {children}
     </View>
   );
@@ -70,36 +86,52 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function VagaDetails({ post }: { post: VagaPost }) {
   const { vaga } = post;
+
   return (
     <>
       <AppText variant="bodyStrong" color="primary">
         {post.empresaNome} • {post.local}
       </AppText>
+
       <TagList>
         <Tag tone="neutral" icon="payments" label={vaga.faixaSalarial} />
         <Tag tone="neutral" icon="schedule" label={vaga.modalidade} />
         <Tag tone="neutral" icon="description" label={vaga.tipoContrato} />
         <Tag tone="neutral" icon="school" label={vaga.escolaridade} />
       </TagList>
+
       <Section title="Sobre a vaga">
-        <AppText color="onSurfaceVariant">{vaga.descricao}</AppText>
+        <AppText color="onSurface">
+          {vaga.descricao}
+        </AppText>
       </Section>
-      <Section title="O que pedem">
+
+      <Section title="Necessário">
         <TagList>
           {vaga.skillsObrigatorias.map((s) => (
             <Tag key={s} label={s} />
           ))}
+
           {vaga.skillsDesejaveis.map((s) => (
             <Tag key={s} tone="neutral" label={`${s} (desejável)`} />
           ))}
         </TagList>
-        <AppText color="onSurfaceVariant">Experiência mínima: {formatYears(vaga.experienciaMinima)}</AppText>
+
+        <AppText color="onSurface">
+          Experiência mínima: {formatYears(vaga.experienciaMinima)}
+        </AppText>
       </Section>
-      <Section title="Horário">
-        <AppText color="onSurfaceVariant">{vaga.horario}</AppText>
+
+      <Section title="Período">
+        <AppText color="onSurface">
+          {vaga.horario}
+        </AppText>
       </Section>
+
       <Section title="Benefícios">
-        <AppText color="onSurfaceVariant">{vaga.beneficios}</AppText>
+        <AppText color="onSurface">
+          {vaga.beneficios}
+        </AppText>
       </Section>
     </>
   );
@@ -108,40 +140,88 @@ function VagaDetails({ post }: { post: VagaPost }) {
 function CandidatoDetails({ post }: { post: CandidatoPost }) {
   return (
     <>
-      <AppText variant="bodyStrong" color="primary">
-        {post.cargoDesejado} • {post.local} • {post.idade} anos
-      </AppText>
-      <AppText color="onSurfaceVariant">Experiência: {formatYears(post.anosExperiencia)}</AppText>
-      <Section title="Experiências">
-        <AppText color="onSurfaceVariant">{post.experiencias}</AppText>
+    <Section title="Informações básicas">
+      <TagList>
+
+         <Tag
+          tone="neutral"
+          icon="location-on"
+          label={`${post.local}`}
+        /> 
+
+        <Tag
+          tone="neutral"
+          icon="person"
+          label={`${post.idade} anos`}
+        />
+
+        <Tag
+          tone="neutral"
+          icon="work"
+          label={post.cargoDesejado}
+        />
+
+        <Tag
+          tone="neutral"
+          icon="work"
+          label={`${formatYears(post.anosExperiencia)} de experiência`}
+        />
+
+      </TagList>
+    </Section>
+
+      <Section title="Sobre o candidato">
+        <AppText color="onSurface">
+          {post.experiencias}
+        </AppText>
       </Section>
+
       <Section title="Formação">
-        <AppText color="onSurfaceVariant">
+        <AppText color="onSurface">
           {post.formacao} ({post.escolaridade})
         </AppText>
       </Section>
+
       <Section title="Hard skills">
         <TagList>
           {post.hardSkills.map((s) => (
-            <Tag key={s} label={s} />
+            <Tag key={s} tone="neutral" label={s} />
           ))}
         </TagList>
       </Section>
+
       <Section title="Soft skills">
         <TagList>
           {post.softSkills.map((s) => (
-            <Tag key={s} label={s} />
+            <Tag key={s} tone="neutral" label={s} />
           ))}
         </TagList>
       </Section>
+
       <Section title="O que procura">
         <TagList>
-          <Tag tone="neutral" icon="payments" label={post.faixaSalarial} />
+          <Tag
+            tone="neutral"
+            icon="payments"
+            label={post.faixaSalarial}
+          />
+
           {post.modalidades.map((m) => (
-            <Tag key={m} tone="neutral" icon="schedule" label={m} />
+            <Tag
+              key={m}
+              tone="neutral"
+              icon="schedule"
+              label={m}
+            />
           ))}
+
           {post.tiposContrato.map((t) => (
-            <Tag key={t} tone="neutral" icon="description" label={t} />
+            <Tag
+              key={t}
+              tone="neutral"
+              icon="description"
+              label={t}
+            />
           ))}
         </TagList>
       </Section>

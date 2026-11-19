@@ -2,49 +2,70 @@
  * Cadastro: o que cada perfil informa e as regras de validação. Funções
  * puras, sem UI — testáveis isoladas e reaproveitáveis na edição de perfil.
  */
-import { onlyDigits } from '@/core/format/masks';
+import { onlyDigits } from "@/core/format/masks";
 
-import { validateEmail, validatePassword } from './credentials';
+import { validateEmail, validatePassword } from "./credentials";
 
 // ---------------------------------------------------------------------------
 // Opções fixas (chips)
 // ---------------------------------------------------------------------------
 
 export const ESCOLARIDADES = [
-  'Fundamental',
-  'Médio',
-  'Técnico',
-  'Superior em andamento',
-  'Superior completo',
-  'Pós-graduação',
+  "Fundamental",
+  "Médio",
+  "Técnico",
+  "Superior em andamento",
+  "Superior completo",
+  "Pós-graduação",
 ] as const;
 export type Escolaridade = (typeof ESCOLARIDADES)[number];
 
-export const TIPOS_CONTRATO = ['CLT', 'PJ', 'Estágio', 'Temporário', 'Freelancer', 'Jovem Aprendiz'] as const;
+export const TIPOS_CONTRATO = [
+  "CLT",
+  "PJ",
+  "Estágio",
+  "Temporário",
+  "Freelancer",
+  "Jovem Aprendiz",
+] as const;
 export type TipoContrato = (typeof TIPOS_CONTRATO)[number];
 
-export const MODALIDADES = ['Presencial', 'Híbrido', 'Remoto'] as const;
+export const MODALIDADES = ["Presencial", "Híbrido", "Remoto"] as const;
 export type Modalidade = (typeof MODALIDADES)[number];
 
 export const FAIXAS_SALARIAIS = [
-  'Até R$ 2 mil',
-  'R$ 2 a 4 mil',
-  'R$ 4 a 6 mil',
-  'R$ 6 a 10 mil',
-  'Acima de R$ 10 mil',
-  'A combinar',
+  "Até R$ 2 mil",
+  "R$ 2 a 4 mil",
+  "R$ 4 a 6 mil",
+  "R$ 6 a 10 mil",
+  "Acima de R$ 10 mil",
+  "A combinar",
 ] as const;
 export type FaixaSalarial = (typeof FAIXAS_SALARIAIS)[number];
 
-export const HARD_SKILL_SUGESTOES = ['Excel', 'React', 'Atendimento', 'Vendas', 'Inglês', 'Figma', 'SQL'];
-export const SOFT_SKILL_SUGESTOES = ['Comunicação', 'Trabalho em equipe', 'Proatividade', 'Organização', 'Liderança'];
+export const HARD_SKILL_SUGESTOES = [
+  "Excel",
+  "React",
+  "Atendimento",
+  "Vendas",
+  "Inglês",
+  "Figma",
+  "SQL",
+];
+export const SOFT_SKILL_SUGESTOES = [
+  "Comunicação",
+  "Trabalho em equipe",
+  "Proatividade",
+  "Organização",
+  "Liderança",
+];
 
 // ---------------------------------------------------------------------------
 // Payloads enviados ao repositório
 // ---------------------------------------------------------------------------
 
 export interface CandidatoSignUp {
-  role: 'candidato';
+  role: "candidato";
   nomeCompleto: string;
   cpf: string;
   dataNascimento: string;
@@ -84,7 +105,7 @@ export interface VagaInfo {
 }
 
 export interface EmpresaSignUp {
-  role: 'empresa';
+  role: "empresa";
   /** CNPJ (MEI também tem CNPJ). */
   cnpj: string;
   nomeEmpresa: string;
@@ -147,47 +168,47 @@ export interface EmpresaDraft {
 }
 
 export const emptyCandidatoDraft: CandidatoDraft = {
-  nomeCompleto: '',
-  cpf: '',
-  dataNascimento: '',
-  email: '',
-  celular: '',
+  nomeCompleto: "",
+  cpf: "",
+  dataNascimento: "",
+  email: "",
+  celular: "",
   escolaridade: null,
-  cargoDesejado: '',
-  formacao: '',
-  cep: '',
+  cargoDesejado: "",
+  formacao: "",
+  cep: "",
   tiposContrato: [],
-  experiencias: '',
-  anosExperiencia: '',
+  experiencias: "",
+  anosExperiencia: "",
   faixaSalarial: null,
   hardSkills: [],
   softSkills: [],
   modalidades: [],
-  senha: '',
-  confirmacaoSenha: '',
+  senha: "",
+  confirmacaoSenha: "",
 };
 
 export const emptyEmpresaDraft: EmpresaDraft = {
-  cnpj: '',
-  nomeEmpresa: '',
-  dataFundacao: '',
-  endereco: '',
-  telefone: '',
-  email: '',
-  cargo: '',
-  descricao: '',
-  beneficios: '',
-  horario: '',
-  cep: '',
+  cnpj: "",
+  nomeEmpresa: "",
+  dataFundacao: "",
+  endereco: "",
+  telefone: "",
+  email: "",
+  cargo: "",
+  descricao: "",
+  beneficios: "",
+  horario: "",
+  cep: "",
   skillsObrigatorias: [],
   skillsDesejaveis: [],
-  experienciaMinima: '',
+  experienciaMinima: "",
   escolaridade: null,
   tipoContrato: null,
   faixaSalarial: null,
   modalidade: null,
-  senha: '',
-  confirmacaoSenha: '',
+  senha: "",
+  confirmacaoSenha: "",
 };
 
 // ---------------------------------------------------------------------------
@@ -203,8 +224,8 @@ const required =
 
 export function validateFullName(value: string): string | null {
   const parts = value.trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return 'Informe seu nome completo.';
-  if (parts.length < 2) return 'Informe nome e sobrenome.';
+  if (parts.length === 0) return "Informe seu nome completo.";
+  if (parts.length < 2) return "Informe nome e sobrenome.";
   return null;
 }
 
@@ -221,15 +242,18 @@ export function isValidCpf(value: string): boolean {
 }
 
 export function validateCpf(value: string): string | null {
-  if (onlyDigits(value).length === 0) return 'Informe seu CPF.';
-  return isValidCpf(value) ? null : 'CPF inválido.';
+  if (onlyDigits(value).length === 0) return "Informe seu CPF.";
+  return isValidCpf(value) ? null : "CPF inválido.";
 }
 
 export function isValidCnpj(value: string): boolean {
   const cnpj = onlyDigits(value);
   if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
   const digit = (len: number) => {
-    const weights = len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const weights =
+      len === 12
+        ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
+        : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     const sum = weights.reduce((acc, w, i) => acc + Number(cnpj[i]) * w, 0);
     const rest = sum % 11;
     return rest < 2 ? 0 : 11 - rest;
@@ -238,41 +262,48 @@ export function isValidCnpj(value: string): boolean {
 }
 
 export function validateCnpj(value: string): string | null {
-  if (onlyDigits(value).length === 0) return 'Informe o CNPJ ou MEI.';
-  return isValidCnpj(value) ? null : 'CNPJ inválido.';
+  if (onlyDigits(value).length === 0) return "Informe o CNPJ ou MEI.";
+  return isValidCnpj(value) ? null : "CNPJ inválido.";
 }
 
 export function validateCep(value: string): string | null {
   const digits = onlyDigits(value);
-  if (digits.length === 0) return 'Informe o CEP.';
-  return digits.length === 8 ? null : 'CEP deve ter 8 dígitos.';
+  if (digits.length === 0) return "Informe o CEP.";
+  return digits.length === 8 ? null : "CEP deve ter 8 dígitos.";
 }
 
 /** Anos inteiros de 0 a 60, digitados como texto. */
-export function validateYears(value: string, emptyMessage: string): string | null {
+export function validateYears(
+  value: string,
+  emptyMessage: string,
+): string | null {
   const digits = value.trim();
   if (digits.length === 0) return emptyMessage;
-  if (!/^\d+$/.test(digits) || Number(digits) > 60) return 'Informe um número de anos entre 0 e 60.';
+  if (!/^\d+$/.test(digits) || Number(digits) > 60)
+    return "Informe um número de anos entre 0 e 60.";
   return null;
 }
 
 /** 0 → "nenhuma", 1 → "1 ano", n → "n anos". */
 export function formatYears(years: number): string {
-  if (years === 0) return 'nenhuma';
-  return years === 1 ? '1 ano' : `${years} anos`;
+  if (years === 0) return "nenhuma";
+  return years === 1 ? "1 ano" : `${years} anos`;
 }
 
 export function validateMobilePhone(value: string): string | null {
   const digits = onlyDigits(value);
-  if (digits.length === 0) return 'Informe seu celular.';
-  if (digits.length !== 11 || digits[2] !== '9') return 'Celular inválido. Use DDD + 9 dígitos.';
+  if (digits.length === 0) return "Informe seu celular.";
+  if (digits.length !== 11 || digits[2] !== "9")
+    return "Celular inválido. Use DDD + 9 dígitos.";
   return null;
 }
 
 export function validatePhone(value: string): string | null {
   const digits = onlyDigits(value);
-  if (digits.length === 0) return 'Informe o telefone.';
-  return digits.length === 10 || digits.length === 11 ? null : 'Telefone inválido. Inclua o DDD.';
+  if (digits.length === 0) return "Informe o telefone.";
+  return digits.length === 10 || digits.length === 11
+    ? null
+    : "Telefone inválido. Inclua o DDD.";
 }
 
 /** Converte "dd/mm/aaaa" em Date, ou null se a data não existir. */
@@ -281,7 +312,10 @@ export function parseBrDate(value: string): Date | null {
   if (!match) return null;
   const [, dd, mm, yyyy] = match.map(Number);
   const date = new Date(yyyy, mm - 1, dd);
-  const exists = date.getFullYear() === yyyy && date.getMonth() === mm - 1 && date.getDate() === dd;
+  const exists =
+    date.getFullYear() === yyyy &&
+    date.getMonth() === mm - 1 &&
+    date.getDate() === dd;
   return exists ? date : null;
 }
 
@@ -289,7 +323,8 @@ export function ageOn(birth: Date, today: Date): number {
   let age = today.getFullYear() - birth.getFullYear();
   const beforeBirthday =
     today.getMonth() < birth.getMonth() ||
-    (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate());
+    (today.getMonth() === birth.getMonth() &&
+      today.getDate() < birth.getDate());
   if (beforeBirthday) age--;
   return age;
 }
@@ -297,27 +332,37 @@ export function ageOn(birth: Date, today: Date): number {
 /** Idade mínima para trabalhar no Brasil (aprendiz). */
 export const MIN_WORK_AGE = 14;
 
-export function validateBirthDate(value: string, today: Date = new Date()): string | null {
-  if (value.trim().length === 0) return 'Informe sua data de nascimento.';
+export function validateBirthDate(
+  value: string,
+  today: Date = new Date(),
+): string | null {
+  if (value.trim().length === 0) return "Informe sua data de nascimento.";
   const date = parseBrDate(value);
-  if (!date) return 'Data inválida. Use dd/mm/aaaa.';
+  if (!date) return "Data inválida. Use dd/mm/aaaa.";
   const age = ageOn(date, today);
-  if (age < MIN_WORK_AGE) return `É preciso ter pelo menos ${MIN_WORK_AGE} anos.`;
-  if (age > 100) return 'Confira o ano de nascimento.';
+  if (age < MIN_WORK_AGE)
+    return `É preciso ter pelo menos ${MIN_WORK_AGE} anos.`;
+  if (age > 100) return "Confira o ano de nascimento.";
   return null;
 }
 
-export function validateFoundationDate(value: string, today: Date = new Date()): string | null {
-  if (value.trim().length === 0) return 'Informe a data de fundação.';
+export function validateFoundationDate(
+  value: string,
+  today: Date = new Date(),
+): string | null {
+  if (value.trim().length === 0) return "Informe a data de fundação.";
   const date = parseBrDate(value);
-  if (!date) return 'Data inválida. Use dd/mm/aaaa.';
-  if (date > today) return 'A data de fundação não pode estar no futuro.';
+  if (!date) return "Data inválida. Use dd/mm/aaaa.";
+  if (date > today) return "A data de fundação não pode estar no futuro.";
   return null;
 }
 
-export function validatePasswordConfirmation(password: string, confirmation: string): string | null {
-  if (confirmation.length === 0) return 'Confirme sua senha.';
-  return password === confirmation ? null : 'As senhas não conferem.';
+export function validatePasswordConfirmation(
+  password: string,
+  confirmation: string,
+): string | null {
+  if (confirmation.length === 0) return "Confirme sua senha.";
+  return password === confirmation ? null : "As senhas não conferem.";
 }
 
 // ---------------------------------------------------------------------------
@@ -341,110 +386,155 @@ function collect<T>(entries: [keyof T, string | null][]): FieldErrors<T> {
 }
 
 const pick = (message: string) => (value: unknown) =>
-  value == null || (Array.isArray(value) && value.length === 0) ? message : null;
+  value == null || (Array.isArray(value) && value.length === 0)
+    ? message
+    : null;
 
 export const CANDIDATO_STEPS: WizardStep<CandidatoDraft>[] = [
   {
-    title: 'Seus dados',
-    subtitle: 'Informações fixas — usadas só para identificar você.',
+    title: "Seus dados",
+    subtitle: "Informações fixas — usadas só para identificar você.",
     validate: (d) =>
       collect([
-        ['nomeCompleto', validateFullName(d.nomeCompleto)],
-        ['cpf', validateCpf(d.cpf)],
-        ['dataNascimento', validateBirthDate(d.dataNascimento)],
-        ['email', validateEmail(d.email)],
-        ['celular', validateMobilePhone(d.celular)],
+        ["nomeCompleto", validateFullName(d.nomeCompleto)],
+        ["cpf", validateCpf(d.cpf)],
+        ["dataNascimento", validateBirthDate(d.dataNascimento)],
+        ["email", validateEmail(d.email)],
+        ["celular", validateMobilePhone(d.celular)],
       ]),
   },
   {
-    title: 'Seu perfil',
-    subtitle: 'É isso que as empresas vão ver no feed.',
+    title: "Seu perfil",
+    subtitle: "É isso que as empresas vão ver no feed.",
     validate: (d) =>
       collect([
-        ['cargoDesejado', required('Qual vaga você procura?')(d.cargoDesejado)],
-        ['escolaridade', pick('Escolha sua escolaridade.')(d.escolaridade)],
-        ['formacao', required('Conte sua formação (curso e instituição).')(d.formacao)],
-        ['cep', validateCep(d.cep)],
-        ['experiencias', required('Descreva suas experiências (ou "primeiro emprego").')(d.experiencias)],
-        ['anosExperiencia', validateYears(d.anosExperiencia, 'Informe seus anos de experiência (0 se for o primeiro).')],
+        ["cargoDesejado", required("Qual vaga você procura?")(d.cargoDesejado)],
+        ["escolaridade", pick("Escolha sua escolaridade.")(d.escolaridade)],
+        [
+          "formacao",
+          required("Conte sua formação (curso e instituição).")(d.formacao),
+        ],
+        ["cep", validateCep(d.cep)],
+        [
+          "experiencias",
+          required('Descreva suas experiências (ou "primeiro emprego").')(
+            d.experiencias,
+          ),
+        ],
+        [
+          "anosExperiencia",
+          validateYears(
+            d.anosExperiencia,
+            "Informe seus anos de experiência (0 se for o primeiro).",
+          ),
+        ],
       ]),
   },
   {
-    title: 'O que você procura',
-    subtitle: 'Usamos isso para filtrar as vagas do seu feed.',
+    title: "O que você procura",
+    subtitle: "Usamos isso para filtrar as vagas do seu feed.",
     validate: (d) =>
       collect([
-        ['tiposContrato', pick('Escolha ao menos um tipo de contrato.')(d.tiposContrato)],
-        ['modalidades', pick('Escolha ao menos uma modalidade.')(d.modalidades)],
-        ['faixaSalarial', pick('Escolha uma faixa salarial.')(d.faixaSalarial)],
+        [
+          "tiposContrato",
+          pick("Escolha ao menos um tipo de contrato.")(d.tiposContrato),
+        ],
+        [
+          "modalidades",
+          pick("Escolha ao menos uma modalidade.")(d.modalidades),
+        ],
+        ["faixaSalarial", pick("Escolha uma faixa salarial.")(d.faixaSalarial)],
       ]),
   },
   {
-    title: 'Suas habilidades',
-    subtitle: 'Hard skills são técnicas; soft skills, comportamentais.',
+    title: "Suas habilidades",
+    subtitle: "Hard skills são técnicas; soft skills, comportamentais.",
     validate: (d) =>
       collect([
-        ['hardSkills', pick('Adicione ao menos uma hard skill.')(d.hardSkills)],
-        ['softSkills', pick('Adicione ao menos uma soft skill.')(d.softSkills)],
+        ["hardSkills", pick("Adicione ao menos uma hard skill.")(d.hardSkills)],
+        ["softSkills", pick("Adicione ao menos uma soft skill.")(d.softSkills)],
       ]),
   },
   {
-    title: 'Crie sua senha',
-    subtitle: 'Último passo!',
+    title: "Crie sua senha",
+    subtitle: "Último passo!",
     validate: (d) =>
       collect([
-        ['senha', validatePassword(d.senha)],
-        ['confirmacaoSenha', validatePasswordConfirmation(d.senha, d.confirmacaoSenha)],
+        ["senha", validatePassword(d.senha)],
+        [
+          "confirmacaoSenha",
+          validatePasswordConfirmation(d.senha, d.confirmacaoSenha),
+        ],
       ]),
   },
 ];
 
 export const EMPRESA_STEPS: WizardStep<EmpresaDraft>[] = [
   {
-    title: 'Sua empresa',
-    subtitle: 'Informações fixas da empresa.',
+    title: "Sua empresa",
+    subtitle: "Informações fixas da empresa.",
     validate: (d) =>
       collect([
-        ['cnpj', validateCnpj(d.cnpj)],
-        ['nomeEmpresa', required('Informe o nome da empresa.')(d.nomeEmpresa)],
-        ['dataFundacao', validateFoundationDate(d.dataFundacao)],
-        ['endereco', required('Informe o endereço.')(d.endereco)],
-        ['telefone', validatePhone(d.telefone)],
-        ['email', validateEmail(d.email)],
+        ["cnpj", validateCnpj(d.cnpj)],
+        ["nomeEmpresa", required("Informe o nome da empresa.")(d.nomeEmpresa)],
+        ["dataFundacao", validateFoundationDate(d.dataFundacao)],
+        ["endereco", required("Informe o endereço.")(d.endereco)],
+        ["telefone", validatePhone(d.telefone)],
+        ["email", validateEmail(d.email)],
       ]),
   },
   {
-    title: 'A vaga',
-    subtitle: 'Você poderá cadastrar outras vagas depois, no perfil.',
+    title: "A vaga",
+    subtitle: "Você poderá cadastrar outras vagas depois, no perfil.",
     validate: (d) =>
       collect([
-        ['cargo', required('Informe o nome do cargo.')(d.cargo)],
-        ['descricao', required('Descreva a vaga.')(d.descricao)],
-        ['beneficios', required('Liste os benefícios (ou "a combinar").')(d.beneficios)],
-        ['horario', required('Informe o horário de trabalho.')(d.horario)],
-        ['cep', validateCep(d.cep)],
+        ["cargo", required("Informe o nome do cargo.")(d.cargo)],
+        ["descricao", required("Descreva a vaga.")(d.descricao)],
+        [
+          "beneficios",
+          required('Liste os benefícios (ou "a combinar").')(d.beneficios),
+        ],
+        ["horario", required("Informe o horário de trabalho.")(d.horario)],
+        ["cep", validateCep(d.cep)],
       ]),
   },
   {
-    title: 'Requisitos e condições',
-    subtitle: 'Usamos isso para mostrar os talentos certos no seu feed.',
+    title: "Requisitos e condições",
+    subtitle: "Usamos isso para mostrar os talentos certos no seu feed.",
     validate: (d) =>
       collect([
-        ['skillsObrigatorias', pick('Adicione ao menos uma skill obrigatória.')(d.skillsObrigatorias)],
-        ['experienciaMinima', validateYears(d.experienciaMinima, 'Informe a experiência mínima (0 se aceita iniciante).')],
-        ['escolaridade', pick('Escolha a escolaridade desejada.')(d.escolaridade)],
-        ['tipoContrato', pick('Escolha o tipo de contrato.')(d.tipoContrato)],
-        ['modalidade', pick('Escolha a modalidade.')(d.modalidade)],
-        ['faixaSalarial', pick('Escolha a faixa salarial.')(d.faixaSalarial)],
+        [
+          "skillsObrigatorias",
+          pick("Adicione ao menos uma skill obrigatória.")(
+            d.skillsObrigatorias,
+          ),
+        ],
+        [
+          "experienciaMinima",
+          validateYears(
+            d.experienciaMinima,
+            "Informe a experiência mínima (0 se aceita iniciante).",
+          ),
+        ],
+        [
+          "escolaridade",
+          pick("Escolha a escolaridade desejada.")(d.escolaridade),
+        ],
+        ["tipoContrato", pick("Escolha o tipo de contrato.")(d.tipoContrato)],
+        ["modalidade", pick("Escolha a modalidade.")(d.modalidade)],
+        ["faixaSalarial", pick("Escolha a faixa salarial.")(d.faixaSalarial)],
       ]),
   },
   {
-    title: 'Crie sua senha',
-    subtitle: 'Último passo!',
+    title: "Crie sua senha",
+    subtitle: "Último passo!",
     validate: (d) =>
       collect([
-        ['senha', validatePassword(d.senha)],
-        ['confirmacaoSenha', validatePasswordConfirmation(d.senha, d.confirmacaoSenha)],
+        ["senha", validatePassword(d.senha)],
+        [
+          "confirmacaoSenha",
+          validatePasswordConfirmation(d.senha, d.confirmacaoSenha),
+        ],
       ]),
   },
 ];
@@ -455,12 +545,12 @@ export const EMPRESA_STEPS: WizardStep<EmpresaDraft>[] = [
 
 export function toCandidatoSignUp(d: CandidatoDraft): CandidatoSignUp {
   if (!d.escolaridade || !d.faixaSalarial) {
-    throw new Error('toCandidatoSignUp: rascunho não validado');
+    throw new Error("toCandidatoSignUp: rascunho não validado");
   }
   const { confirmacaoSenha: _ignored, ...rest } = d;
   return {
     ...rest,
-    role: 'candidato',
+    role: "candidato",
     nomeCompleto: d.nomeCompleto.trim(),
     email: d.email.trim().toLowerCase(),
     anosExperiencia: Number(d.anosExperiencia),
@@ -471,10 +561,10 @@ export function toCandidatoSignUp(d: CandidatoDraft): CandidatoSignUp {
 
 export function toEmpresaSignUp(d: EmpresaDraft): EmpresaSignUp {
   if (!d.escolaridade || !d.tipoContrato || !d.faixaSalarial || !d.modalidade) {
-    throw new Error('toEmpresaSignUp: rascunho não validado');
+    throw new Error("toEmpresaSignUp: rascunho não validado");
   }
   return {
-    role: 'empresa',
+    role: "empresa",
     cnpj: d.cnpj,
     nomeEmpresa: d.nomeEmpresa.trim(),
     dataFundacao: d.dataFundacao,
@@ -489,7 +579,7 @@ export function toEmpresaSignUp(d: EmpresaDraft): EmpresaSignUp {
 /** Parte "vaga" do rascunho da empresa — usada no cadastro e no CRUD de vagas. */
 export function toVagaInfo(d: EmpresaDraft): VagaInfo {
   if (!d.escolaridade || !d.tipoContrato || !d.faixaSalarial || !d.modalidade) {
-    throw new Error('toVagaInfo: rascunho não validado');
+    throw new Error("toVagaInfo: rascunho não validado");
   }
   return {
     cargo: d.cargo.trim(),

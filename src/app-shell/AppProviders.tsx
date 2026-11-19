@@ -1,32 +1,49 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { useStore, type StoreApi } from 'zustand';
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { useStore, type StoreApi } from "zustand";
 
-import { FakeAuthRepository } from '@/features/auth/data/fakeAuthRepository';
-import type { AuthRepository } from '@/features/auth/domain/authRepository';
-import { createSessionStore, type SessionState } from '@/features/auth/state/sessionStore';
-import { FakeAdminRepository } from '@/features/admin/data/fakeAdminRepository';
-import type { AdminRepository } from '@/features/admin/domain/adminRepository';
-import { createAdminStore, type AdminState } from '@/features/admin/state/adminStore';
-import { FakeChatRepository } from '@/features/chat/data/fakeChatRepository';
-import type { ChatRepository } from '@/features/chat/domain/chatRepository';
-import { createChatStore, type ChatState } from '@/features/chat/state/chatStore';
-import { FakeFeedRepository } from '@/features/feed/data/fakeFeedRepository';
-import type { FeedRepository } from '@/features/feed/domain/feedRepository';
-import { createFeedStore, type FeedState } from '@/features/feed/state/feedStore';
-import { FakeProfileRepository } from '@/features/profile/data/fakeProfileRepository';
-import type { ProfileRepository } from '@/features/profile/domain/profileRepository';
-import { createProfileStore, type ProfileState } from '@/features/profile/state/profileStore';
+import { FakeAuthRepository } from "@/features/auth/data/fakeAuthRepository";
+import type { AuthRepository } from "@/features/auth/domain/authRepository";
+import {
+  createSessionStore,
+  type SessionState,
+} from "@/features/auth/state/sessionStore";
+import { FakeAdminRepository } from "@/features/admin/data/fakeAdminRepository";
+import type { AdminRepository } from "@/features/admin/domain/adminRepository";
+import {
+  createAdminStore,
+  type AdminState,
+} from "@/features/admin/state/adminStore";
+import { FakeChatRepository } from "@/features/chat/data/fakeChatRepository";
+import type { ChatRepository } from "@/features/chat/domain/chatRepository";
+import {
+  createChatStore,
+  type ChatState,
+} from "@/features/chat/state/chatStore";
+import { FakeFeedRepository } from "@/features/feed/data/fakeFeedRepository";
+import type { FeedRepository } from "@/features/feed/domain/feedRepository";
+import {
+  createFeedStore,
+  type FeedState,
+} from "@/features/feed/state/feedStore";
+import { FakeProfileRepository } from "@/features/profile/data/fakeProfileRepository";
+import type { ProfileRepository } from "@/features/profile/domain/profileRepository";
+import {
+  createProfileStore,
+  type ProfileState,
+} from "@/features/profile/state/profileStore";
 
-import { createStoreContext } from './createStoreContext';
+import { createStoreContext } from "./createStoreContext";
 
-import { resolveAppOrigin, type AppOrigin } from './origin';
+import { resolveAppOrigin, type AppOrigin } from "./origin";
+import { ApiAuthRepository } from "@/features/auth/data/apiAuthRepository";
+import { ApiProfileRepository } from "@/features/profile/data/apiProfileRepository";
 
 const OriginContext = createContext<AppOrigin | null>(null);
 const SessionStoreContext = createContext<StoreApi<SessionState> | null>(null);
-const ProfileStore = createStoreContext<ProfileState>('useProfileStore');
-const FeedStore = createStoreContext<FeedState>('useFeedStore');
-const ChatStore = createStoreContext<ChatState>('useChatStore');
-const AdminStore = createStoreContext<AdminState>('useAdminStore');
+const ProfileStore = createStoreContext<ProfileState>("useProfileStore");
+const FeedStore = createStoreContext<FeedState>("useFeedStore");
+const ChatStore = createStoreContext<ChatState>("useChatStore");
+const AdminStore = createStoreContext<AdminState>("useAdminStore");
 
 interface AppProvidersProps {
   /** Default: resolveAppOrigin(). Override usado pelos testes. */
@@ -43,6 +60,8 @@ interface AppProvidersProps {
   adminRepository?: AdminRepository;
   children: ReactNode;
 }
+
+const useApi = !!process.env.EXPO_PUBLIC_API_URL;
 
 /**
  * Raiz de injeção de dependências do app. A store é criada uma única vez
@@ -69,12 +88,25 @@ export function AppProviders({
     const fakeChat = new FakeChatRepository();
     const auth =
       authRepository ??
-      new FakeAuthRepository(undefined, (session, payload) => fakeProfiles.seedFromSignUp(session, payload));
+      (useApi
+        ? new ApiAuthRepository()
+        : new FakeAuthRepository(undefined, (session, payload) =>
+            fakeProfiles.seedFromSignUp(session, payload),
+          ));
+    const session = createSessionStore(auth, resolvedOrigin);
     return {
-      session: createSessionStore(auth, resolvedOrigin),
-      profile: createProfileStore(profileRepository ?? fakeProfiles),
+      session: session,
+      profile: createProfileStore(
+        profileRepository ??
+          (useApi
+            ? new ApiProfileRepository(() => session.getState().session?.token)
+            : fakeProfiles),
+      ),
       feed: createFeedStore(
-        feedRepository ?? new FakeFeedRepository(undefined, (match) => fakeChat.createFromMatch(match)),
+        feedRepository ??
+          new FakeFeedRepository(undefined, (match) =>
+            fakeChat.createFromMatch(match),
+          ),
       ),
       chat: createChatStore(chatRepository ?? fakeChat),
       admin: createAdminStore(adminRepository ?? new FakeAdminRepository()),
@@ -87,7 +119,9 @@ export function AppProviders({
         <ProfileStore.Provider value={stores.profile}>
           <FeedStore.Provider value={stores.feed}>
             <ChatStore.Provider value={stores.chat}>
-              <AdminStore.Provider value={stores.admin}>{children}</AdminStore.Provider>
+              <AdminStore.Provider value={stores.admin}>
+                {children}
+              </AdminStore.Provider>
             </ChatStore.Provider>
           </FeedStore.Provider>
         </ProfileStore.Provider>
@@ -99,7 +133,7 @@ export function AppProviders({
 export function useAppOrigin(): AppOrigin {
   const origin = useContext(OriginContext);
   if (origin === null) {
-    throw new Error('useAppOrigin must be used within <AppProviders>');
+    throw new Error("useAppOrigin must be used within <AppProviders>");
   }
   return origin;
 }
@@ -107,7 +141,7 @@ export function useAppOrigin(): AppOrigin {
 export function useSessionStore<T>(selector: (state: SessionState) => T): T {
   const store = useContext(SessionStoreContext);
   if (!store) {
-    throw new Error('useSessionStore must be used within <AppProviders>');
+    throw new Error("useSessionStore must be used within <AppProviders>");
   }
   return useStore(store, selector);
 }
@@ -116,7 +150,7 @@ export function useSessionStore<T>(selector: (state: SessionState) => T): T {
 export function useSessionStoreApi(): StoreApi<SessionState> {
   const store = useContext(SessionStoreContext);
   if (!store) {
-    throw new Error('useSessionStoreApi must be used within <AppProviders>');
+    throw new Error("useSessionStoreApi must be used within <AppProviders>");
   }
   return store;
 }
